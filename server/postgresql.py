@@ -3,6 +3,7 @@ import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 from server.base import BaseServer 
+from database.postgresql import PostgreSQLDatabase 
 
 
 class PostgreSQLServer(BaseServer):
@@ -44,6 +45,7 @@ class PostgreSQLServer(BaseServer):
         self.port = port 
         self.dbname = dbname 
         self.cnxn = self.__establish_connection()
+        self.database = PostgreSQLDatabase(self.cnxn, dbname)
 
     def __del__(self):
         self.cnxn.close()

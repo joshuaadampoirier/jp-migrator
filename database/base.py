@@ -1,12 +1,12 @@
-class BaseServer:
+class BaseDatabase:
     '''
-    Base server class for all database server types.
+    Base database class for all database types.
     '''
 
     @classmethod
     def _get_param_names(cls):
         '''
-        Get parameter names for the server
+        Get parameter names for the database
         
         Parameters
         ----------
@@ -17,7 +17,7 @@ class BaseServer:
                     List of the class parameters.
         '''
         # fetch the constructor 
-        init = getattr(cls.__init__, 'Server Class', cls.__init__)
+        init = getattr(cls.__init__, 'Database Class', cls.__init__)
 
         if init is object.__init__:
             # no constructor to inspect
@@ -32,7 +32,7 @@ class BaseServer:
             for p in parameters:
                 if p.kind == p.VAR_POSITIONAL:
                     raise RuntimeError(
-                        'Server objects should always specify their '
+                        'Database objects should always specify their '
                         'parameters in the signature of their __init__. '
                         '{class_} with constructor {signature} does not follow '
                         'this convention.'.format(
@@ -48,7 +48,7 @@ class BaseServer:
 
     def get_params(self):
         '''
-        Get parameters for this server.
+        Get parameters for this database.
 
         Parameters
         ----------
@@ -56,7 +56,7 @@ class BaseServer:
         Returns
         -------
         params:     dictionary
-                    Dictionary of parameters for this server and each of their
+                    Dictionary of parameters for this database and each of their
                     set values.
         '''
         # initialize dictionary
@@ -66,39 +66,4 @@ class BaseServer:
         for key in self._get_param_names():
             params[key] = getattr(self, key)
 
-        return params
-
-    def __establish_connection(self):
-        '''
-        Retrieve connection to the SQLite3 database server.
-
-        Parameters 
-        ----------
-        None 
-
-        Returns
-        -------
-        cnxn:       connection object 
-                    Open connection to the SQLite3 database server.
-
-
-        Notes
-        -----
-        All servers should overload this function with their own instance.
-        '''
-        pass
-
-    def get_connection(self):
-        '''
-        Retrieve connection to database server.
-
-        Parameters
-        ----------
-        None 
-
-        Returns
-        -------
-        cnxn:       connection object 
-                    Open connection to the SQLite3 database server.
-        '''
-        return self.cnxn 
+        return params    

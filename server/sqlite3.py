@@ -1,6 +1,7 @@
 import sqlite3 
 
 from server.base import BaseServer 
+from database.sqlite3 import SQLite3Database 
 
 
 class SQLite3Server(BaseServer):
@@ -21,6 +22,7 @@ class SQLite3Server(BaseServer):
     def __init__(self, dbname):
         self.dbname = dbname 
         self.cnxn = self.__establish_connection()
+        self.database = SQLite3Database(self.cnxn)
 
     def __del__(self):
         self.cnxn.close()
