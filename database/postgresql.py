@@ -1,3 +1,5 @@
+from psycopg2.errors import DuplicateDatabase 
+
 from database.base import BaseDatabase 
 
 
@@ -9,10 +11,40 @@ class PostgreSQLDatabase(BaseDatabase):
     ----------
     cnxn:       database server connection
                 Connection to the database.
+
+    dbname:     string 
+                Name of the database to be created.
     '''
-    def __init__(self, cnxn):
+    def __init__(self, cnxn, dbname):
         self.cnxn = cnxn 
+        self.dbname = dbname
+        self.__create_database()
         self.__migrations_run()
+
+    def __create_database(self):
+        '''
+        Create the database if it does not already exist.
+
+        Parameters
+        ----------
+        None 
+
+        Returns
+        -------
+        None 
+        '''
+        # build query and open cursor
+        sql = 'CREATE DATABASE {db}'.format(db=self.dbname)
+        cursor = self.cnxn.cursor() 
+
+        # create the database if it doesn't exist 
+        try:
+            cursor.execute(sql)
+        except DuplicateDatabase:
+            print('Database already exists.')
+        
+        # cleanup
+        cursor.close() 
 
     def __migrations_run(self):
         '''

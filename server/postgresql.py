@@ -45,7 +45,7 @@ class PostgreSQLServer(BaseServer):
         self.port = port 
         self.dbname = dbname 
         self.cnxn = self.__establish_connection()
-        self.database = PostgreSQLDatabase(self.cnxn)
+        self.database = PostgreSQLDatabase(self.cnxn, dbname)
 
     def __del__(self):
         self.cnxn.close()
