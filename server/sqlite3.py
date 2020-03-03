@@ -45,18 +45,3 @@ class SQLite3Server(BaseServer):
         )
 
         return cnxn 
-
-    def get_database(self):
-        '''
-        Retrieve the SQLite3 database object.
-
-        Parameters 
-        ----------
-        None 
-
-        Returns
-        -------
-        database:       SQLite3Database object 
-                        The primary database associated with this server.
-        '''
-        return self.database 

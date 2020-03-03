@@ -23,7 +23,7 @@ class PostgreSQLServerTestCase(unittest.TestCase):
                 ,password='badpassword123'
                 ,host='localhost'
                 ,port='5432'
-                ,dbname='TestServer'
+                ,dbname='testserver'
             )
 
             # test server object 
@@ -44,7 +44,7 @@ class PostgreSQLServerTestCase(unittest.TestCase):
                 ,password='badpassword123'
                 ,host='localhost'
                 ,port='5432'
-                ,dbname='TestServer'
+                ,dbname='testserver'
             )
             cnxn = server.get_connection()
 
