@@ -34,6 +34,7 @@ class SQLite3Database(BaseDatabase):
         # run sql command
         sql = f.read() 
         cursor.execute(sql)
+        self.cnxn.commit()
         
         # cleanup
         f.close()

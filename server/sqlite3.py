@@ -46,24 +46,17 @@ class SQLite3Server(BaseServer):
 
         return cnxn 
 
+    def get_database(self):
+        '''
+        Retrieve the SQLite3 database object.
 
-def main():
-    """
-    Build a SQLite3 server object; connected to a SQLite3 database.
+        Parameters 
+        ----------
+        None 
 
-    Parameters
-    ----------
-        None
-    Returns
-    -------
-        0
-    """
-    server = SQLite3Server('TestServer')
-    print(server.dbname)
-
-
-    return 0
-
-
-if __name__ == '__main__':
-    main()
+        Returns
+        -------
+        database:       SQLite3Database object 
+                        The primary database associated with this server.
+        '''
+        return self.database 
