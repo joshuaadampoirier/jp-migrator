@@ -66,6 +66,7 @@ class PostgreSQLDatabase(BaseDatabase):
         # run sql command
         sql = f.read() 
         cursor.execute(sql)
+        self.cnxn.commit()
         
         # cleanup
         f.close()
