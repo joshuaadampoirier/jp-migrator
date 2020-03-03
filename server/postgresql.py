@@ -1,5 +1,7 @@
 import psycopg2
 
+from psycopg2 import OperationalError 
+from psycopg2.errors import DuplicateDatabase 
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 from server.base import BaseServer 
@@ -48,11 +50,14 @@ class PostgreSQLServer(BaseServer):
         self.database = PostgreSQLDatabase(self.cnxn, dbname)
 
     def __del__(self):
-        self.cnxn.close()
+        try:
+            self.cnxn.close()
+        except AttributeError:
+            print('Warning: Unable to close server connection.')
 
     def __establish_connection(self):
         '''
-        Retrieve connection to the SQLite3 database server.
+        Retrieve connection to the PostgreSQL database server.
 
         Parameters 
         ----------
@@ -61,44 +66,39 @@ class PostgreSQLServer(BaseServer):
         Returns
         -------
         cnxn:       connection object 
-                    Open connection to the SQLite3 database server.
+                    Open connection to the PostgreSQL database server.
         '''
-        cnxn = psycopg2.connect(
-            user=self.user,
-            password=self.password,
-            host=self.host,
-            port=self.port,
-            database=self.dbname
-        )
-    
+        try:
+            cnxn = psycopg2.connect(
+                user=self.user,
+                password=self.password,
+                host=self.host,
+                port=self.port,
+                database=self.dbname
+            )
+        except OperationalError:
+            # attempt to create database by connecting to system database
+            base_cnxn = psycopg2.connect(
+                user=self.user,
+                password=self.password,
+                host=self.host,
+                port=self.port,
+                database='postgres'
+            ) 
+
+            # attempt to create database 
+            database = PostgreSQLDatabase(base_cnxn, self.dbname)
+            base_cnxn.close()
+
+            # second/final attempt to connect to database (now that db is there)
+            cnxn = psycopg2.connect(
+                user=self.user,
+                password=self.password,
+                host=self.host,
+                port=self.port,
+                database=self.dbname
+            )
+
         cnxn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     
         return cnxn 
-
-
-def main():
-    """
-    Build a PostgreSQL server object; connected to a PostgreSQL database server.
-
-    Parameters
-    ----------
-        None
-    Returns
-    -------
-        0
-    """
-    server = PostgreSQLServer(
-        'joshuapoirier',
-        'badpassword123',
-        'localhost',
-        '5432'
-    )
-
-    print(server.dbname)
-
-
-    return 0
-
-
-if __name__ == '__main__':
-    main()

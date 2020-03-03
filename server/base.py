@@ -99,6 +99,21 @@ class BaseServer:
         Returns
         -------
         cnxn:       connection object 
-                    Open connection to the SQLite3 database server.
+                    Open connection to the database server.
         '''
         return self.cnxn 
+
+    def get_database(self):
+        '''
+        Retrieve the database object.
+
+        Parameters 
+        ----------
+        None 
+
+        Returns
+        -------
+        database:       Database object 
+                        The primary database associated with this server.
+        '''
+        return self.database 

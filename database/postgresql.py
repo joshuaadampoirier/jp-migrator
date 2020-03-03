@@ -1,4 +1,5 @@
 from psycopg2.errors import DuplicateDatabase 
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 from database.base import BaseDatabase 
 
@@ -33,13 +34,18 @@ class PostgreSQLDatabase(BaseDatabase):
         -------
         None 
         '''
+        # localize connection object
+        cnxn = self.cnxn 
+        cnxn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+
         # build query and open cursor
         sql = 'CREATE DATABASE {db}'.format(db=self.dbname)
-        cursor = self.cnxn.cursor() 
+        cursor = cnxn.cursor() 
 
         # create the database if it doesn't exist 
         try:
             cursor.execute(sql)
+            cnxn.commit()
         except DuplicateDatabase:
             print('Database already exists.')
         
@@ -67,7 +73,7 @@ class PostgreSQLDatabase(BaseDatabase):
         sql = f.read() 
         cursor.execute(sql)
         self.cnxn.commit()
-        
+    
         # cleanup
         f.close()
         cursor.close()
