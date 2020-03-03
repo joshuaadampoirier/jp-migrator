@@ -40,6 +40,7 @@ class PostgreSQLDatabase(BaseDatabase):
         # create the database if it doesn't exist 
         try:
             cursor.execute(sql)
+            self.cnxn.commit()
         except DuplicateDatabase:
             print('Database already exists.')
         

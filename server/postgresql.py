@@ -48,7 +48,10 @@ class PostgreSQLServer(BaseServer):
         self.database = PostgreSQLDatabase(self.cnxn, dbname)
 
     def __del__(self):
-        self.cnxn.close()
+        try:
+            self.cnxn.close()
+        except AttributeError:
+            print('Warning: Unable to close server connection.')
 
     def __establish_connection(self):
         '''
@@ -68,7 +71,7 @@ class PostgreSQLServer(BaseServer):
             password=self.password,
             host=self.host,
             port=self.port,
-            database=self.dbname
+            database='postgres'
         )
     
         cnxn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
