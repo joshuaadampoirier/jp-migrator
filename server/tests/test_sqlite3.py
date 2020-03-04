@@ -1,7 +1,7 @@
 import unittest 
 from sqlite3 import Connection
 
-from server.sqlite3 import SQLite3Server 
+from server.SQLite3Server import SQLite3Server 
 
 
 class SQLite3ServerTestCase(unittest.TestCase):

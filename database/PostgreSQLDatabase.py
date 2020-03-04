@@ -1,7 +1,7 @@
 from psycopg2.errors import DuplicateDatabase 
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
-from database.base import BaseDatabase 
+from database.BaseDatabase import BaseDatabase 
 
 
 class PostgreSQLDatabase(BaseDatabase):
