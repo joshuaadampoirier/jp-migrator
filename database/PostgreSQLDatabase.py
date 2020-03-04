@@ -1,7 +1,22 @@
+import logging 
+
 from psycopg2.errors import DuplicateDatabase 
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 from database.BaseDatabase import BaseDatabase 
+
+logging.basicConfig(
+    filename='PostgreSQLDatabase.log',
+    level=logging.INFO,
+    format='|' \
+    '%(asctime)-18s|' \
+    '%(levelname)-4s|' \
+    '%(module)-18s|' \
+    '%(filename)-18s:%(lineno)-4s|' \
+    '%(funcName)-18s|' \
+    '%(message)-32s|',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 
 class PostgreSQLDatabase(BaseDatabase):
@@ -17,6 +32,7 @@ class PostgreSQLDatabase(BaseDatabase):
                 Name of the database to be created.
     '''
     def __init__(self, cnxn, dbname):
+        logging.info('Creating PostgreSQL database object')
         self.cnxn = cnxn 
         self.dbname = dbname
         self.__create_database()
@@ -34,6 +50,8 @@ class PostgreSQLDatabase(BaseDatabase):
         -------
         None 
         '''
+        logging.info('Creating PostgreSQL database')
+
         # localize connection object
         cnxn = self.cnxn 
         cnxn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
@@ -47,7 +65,7 @@ class PostgreSQLDatabase(BaseDatabase):
             cursor.execute(sql)
             cnxn.commit()
         except DuplicateDatabase:
-            print('Database already exists.')
+            logging.info('Database already exists')
         
         # cleanup
         cursor.close() 
@@ -65,6 +83,8 @@ class PostgreSQLDatabase(BaseDatabase):
         -------
         None 
         '''
+        logging.info('Create _migrationsrun table')
+        
         # open sql file
         f = open('database/postgresql/_MigrationsRun.sql', 'r')
         cursor = self.cnxn.cursor()
