@@ -1,3 +1,4 @@
+import logging 
 import psycopg2
 
 from psycopg2 import OperationalError 
@@ -6,6 +7,19 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 from server.BaseServer import BaseServer 
 from database.PostgreSQLDatabase import PostgreSQLDatabase 
+
+logging.basicConfig(
+    filename='PostgreSQLServer.log',
+    level=logging.INFO,
+    format='|' \
+    '%(asctime)-18s|' \
+    '%(levelname)-4s|' \
+    '%(module)-18s|' \
+    '%(filename)-18s:%(lineno)-4s|' \
+    '%(funcName)-18s|' \
+    '%(message)-32s|',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 
 class PostgreSQLServer(BaseServer):
@@ -41,6 +55,8 @@ class PostgreSQLServer(BaseServer):
         port='5432', 
         dbname='postgres'
     ):
+        logging.info('Creating PostgreSQL Server object')
+
         self.user = user 
         self.password = password 
         self.host = host 
@@ -51,9 +67,10 @@ class PostgreSQLServer(BaseServer):
 
     def __del__(self):
         try:
+            logging.info('Closing database connection')
             self.cnxn.close()
         except AttributeError:
-            print('Warning: Unable to close server connection.')
+            logging.warning('Unable to close connection')
 
     def __establish_connection(self):
         '''
@@ -69,6 +86,8 @@ class PostgreSQLServer(BaseServer):
                     Open connection to the PostgreSQL database server.
         '''
         try:
+            logging.info('Connecting to database server')
+
             cnxn = psycopg2.connect(
                 user=self.user,
                 password=self.password,
@@ -77,6 +96,8 @@ class PostgreSQLServer(BaseServer):
                 database=self.dbname
             )
         except OperationalError:
+            logging.warning('Unable to connect, trying system database ...')
+
             # attempt to create database by connecting to system database
             base_cnxn = psycopg2.connect(
                 user=self.user,
@@ -86,6 +107,8 @@ class PostgreSQLServer(BaseServer):
                 database='postgres'
             ) 
 
+            logging.info('Creating database')
+            
             # attempt to create database 
             database = PostgreSQLDatabase(base_cnxn, self.dbname)
             base_cnxn.close()
