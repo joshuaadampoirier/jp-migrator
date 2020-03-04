@@ -2,8 +2,8 @@ import unittest
 
 from psycopg2 import OperationalError 
 
-from database.postgresql import PostgreSQLDatabase 
-from server.postgresql import PostgreSQLServer
+from database.PostgreSQLDatabase import PostgreSQLDatabase 
+from server.PostgreSQLServer import PostgreSQLServer
 
 
 class PostgreSQLDatabaseTestCase(unittest.TestCase):
@@ -37,6 +37,10 @@ class PostgreSQLDatabaseTestCase(unittest.TestCase):
         Test to ensure the _MigrationsRun table was created in the database.
         '''
         try:
+            # build SQL query and execute 
+            f = open('database/tests/postgresql/test_migrations_run.sql', 'r')
+            sql = f.read()
+
             # create server object 
             server = PostgreSQLServer(
                 'joshuapoirier',
@@ -46,13 +50,11 @@ class PostgreSQLDatabaseTestCase(unittest.TestCase):
                 ,'testserver3'
             )
 
+            # get connection and run query
             cnxn = server.get_connection()
             cursor = cnxn.cursor()
-
-            # build SQL query and execute 
-            f = open('database/tests/postgresql/test_migrations_run.sql', 'r')
-            sql = f.read()
             cursor.execute(sql)
+            cursor.close()
 
             # run the test 
             self.assertEqual(cursor.fetchone()[0], '_migrationsrun')
@@ -63,4 +65,3 @@ class PostgreSQLDatabaseTestCase(unittest.TestCase):
         finally:
             # cleanup 
             f.close() 
-            cursor.close()

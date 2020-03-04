@@ -4,8 +4,8 @@ from psycopg2 import OperationalError
 from psycopg2.errors import DuplicateDatabase 
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
-from server.base import BaseServer 
-from database.postgresql import PostgreSQLDatabase 
+from server.BaseServer import BaseServer 
+from database.PostgreSQLDatabase import PostgreSQLDatabase 
 
 
 class PostgreSQLServer(BaseServer):

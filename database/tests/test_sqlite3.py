@@ -1,7 +1,7 @@
 import unittest 
 
-from database.sqlite3 import SQLite3Database 
-from server.sqlite3 import SQLite3Server
+from database.SQLite3Database import SQLite3Database 
+from server.SQLite3Server import SQLite3Server
 
 
 class SQLite3DatabaseTestCase(unittest.TestCase):

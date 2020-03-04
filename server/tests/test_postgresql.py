@@ -3,7 +3,7 @@ import unittest
 from psycopg2 import OperationalError 
 from psycopg2.extensions import connection 
 
-from server.postgresql import PostgreSQLServer 
+from server.PostgreSQLServer import PostgreSQLServer 
 
 
 class PostgreSQLServerTestCase(unittest.TestCase):
