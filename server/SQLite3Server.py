@@ -56,8 +56,8 @@ class SQLite3Server(BaseServer):
         cnxn:       connection object 
                     Open connection to the SQLite3 database server.
         '''
-        print('Establishing server connection')
         logging.info('Establishing server connection')
+        
         cnxn = sqlite3.connect(
             'Database={database}.db'.format(database=self.dbname)
         )
