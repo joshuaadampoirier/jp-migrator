@@ -1,8 +1,22 @@
 import argparse 
-
+import logging 
+import yaml
 
 from server.SQLite3Server import SQLite3Server 
 from server.PostgreSQLServer import PostgreSQLServer
+
+logging.basicConfig(
+    filename='Migrate.log',
+    level=logging.INFO,
+    format='|' \
+    '%(asctime)-18s|' \
+    '%(levelname)-4s|' \
+    '%(module)-18s|' \
+    '%(filename)-18s:%(lineno)-4s|' \
+    '%(funcName)-18s|' \
+    '%(message)-32s|',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 
 def _parse_args():
@@ -50,6 +64,55 @@ def _parse_args():
     return args
 
 
+def _read_instructions():
+    '''
+    Read the database migration instructions. These are contained in the 
+    migrate.yaml file of the database project.
+
+    Parameters
+    ----------
+    None 
+
+    Returns
+    -------
+    migrate:        Dictionary 
+                    Database metadata and migration instructions
+
+    Notes
+    -----
+    This function assumes that the current working directory is the root 
+    directory of the database project. If no migrate.yaml file is found, we 
+    throw an error.
+    '''
+    try:
+        stream = open('migrate.yaml', 'r')
+        migrate = yaml.safe_load(stream)
+    except FileNotFoundError:
+        logging.error('Database project must have migrate.yaml to be deployed.')
+        raise FileNotFoundError 
+
+    return migrate 
+
+
+def _get_server(migrate):
+    '''
+    Connect to the server provided by the migration instructions.
+
+    Parameters
+    ----------
+    migrate:        Dictionary
+                    Database migration instructions.
+
+    Returns
+    -------
+    server:         Database Server object.
+    '''
+    if migrate['engine'] == 'SQLite3':
+        server = SQLite3Server(migrate['dbname'])
+
+    return server 
+
+
 def main():
     '''
     Primary orchestration of database migration.
@@ -63,9 +126,10 @@ def main():
     None
     '''
     args = _parse_args()
+    migrate = _read_instructions()
 
-    dbname = 'w3resourceModel'
-    server = SQLite3Server(dbname)
+    server = _get_server(migrate)
+
 
 if __name__ == '__main__':
     main()
