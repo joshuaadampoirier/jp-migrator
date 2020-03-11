@@ -1,4 +1,5 @@
 import logging 
+import pkg_resources 
 
 from psycopg2.errors import DuplicateDatabase 
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
@@ -86,7 +87,10 @@ class PostgreSQLDatabase(BaseDatabase):
         logging.info('Create _migrationsrun table')
         
         # open sql file
-        f = open('database/postgresql/_MigrationsRun.sql', 'r')
+        path = 'postgresql/_MigrationsRun.sql'
+        filepath = pkg_resources.resource_filename(__name__, path)
+        f = open(filepath, 'r')        
+
         cursor = self.cnxn.cursor()
 
         # run sql command

@@ -1,3 +1,4 @@
+import pkg_resources 
 import unittest 
 
 from psycopg2 import OperationalError 
@@ -38,7 +39,9 @@ class PostgreSQLDatabaseTestCase(unittest.TestCase):
         '''
         try:
             # build SQL query and execute 
-            f = open('database/tests/postgresql/test_migrations_run.sql', 'r')
+            path = 'postgresql/test_migrations_run.sql'
+            filepath = pkg_resources.resource_filename(__name__, path)            
+            f = open(filepath, 'r')
             sql = f.read()
 
             # create server object 

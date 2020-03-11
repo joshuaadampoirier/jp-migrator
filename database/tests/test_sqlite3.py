@@ -1,3 +1,4 @@
+import pkg_resources 
 import unittest 
 
 from database.SQLite3Database import SQLite3Database 
@@ -28,7 +29,9 @@ class SQLite3DatabaseTestCase(unittest.TestCase):
         cursor = cnxn.cursor()
 
         # build SQL query and execute 
-        f = open('database/tests/sqlite3/test_migrations_run.sql', 'r')
+        path = 'sqlite3/test_migrations_run.sql'
+        filepath = pkg_resources.resource_filename(__name__, path)            
+        f = open(filepath, 'r')        
         sql = f.read()
         cursor.execute(sql)
 

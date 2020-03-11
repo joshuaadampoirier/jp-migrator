@@ -1,0 +1,4 @@
+include database/postgresql/*.sql
+include database/sqlite3/*.sql
+include database/tests/postgresql/*.sql 
+include database/tests/sqlite3/*.sql 
