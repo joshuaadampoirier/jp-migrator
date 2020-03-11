@@ -18,5 +18,6 @@ setup(
     packages=find_packages(),
     install_requires=requirements,
     license='MIT License',
-    long_description=description
+    long_description=description,
+    include_package_data=True
 )

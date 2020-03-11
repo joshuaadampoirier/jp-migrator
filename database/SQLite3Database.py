@@ -1,4 +1,5 @@
 import logging 
+import pkg_resources 
 
 from database.BaseDatabase import BaseDatabase 
 
@@ -46,7 +47,10 @@ class SQLite3Database(BaseDatabase):
         logging.info('Creating _migrationsrun table')
         
         # open sql file
-        f = open('database/sqlite3/_MigrationsRun.sql', 'r')
+        path = 'sqlite3/_MigrationsRun.sql'
+        filepath = pkg_resources.resource_filename(__name__, path)
+        f = open(filepath, 'r')
+
         cursor = self.cnxn.cursor()
 
         # run sql command
