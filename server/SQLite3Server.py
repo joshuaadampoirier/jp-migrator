@@ -59,7 +59,7 @@ class SQLite3Server(BaseServer):
         logging.info('Establishing server connection')
         
         cnxn = sqlite3.connect(
-            'Database={database}.db'.format(database=self.dbname)
+            database='{database}.db'.format(database=self.dbname)
         )
 
         return cnxn 

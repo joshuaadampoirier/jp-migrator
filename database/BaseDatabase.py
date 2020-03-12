@@ -1,3 +1,18 @@
+import logging 
+
+logging.basicConfig(
+    filename='BaseDatabase.log',
+    level=logging.INFO,
+    format='|' \
+    '%(asctime)-18s|' \
+    '%(levelname)-4s|' \
+    '%(module)-18s|' \
+    '%(filename)-18s:%(lineno)-4s|' \
+    '%(funcName)-18s|' \
+    '%(message)-32s|',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
 class BaseDatabase:
     '''
     Base database class for all database types.
@@ -66,4 +81,76 @@ class BaseDatabase:
         for key in self._get_param_names():
             params[key] = getattr(self, key)
 
-        return params    
+        return params   
+
+    def check_migration(self, migration):
+        '''
+        Checks if a given migration script name has already been executed 
+        against this database. 
+
+        Parameters
+        ----------
+        migration:      str 
+                        Path to the migration file being investigated.
+
+        Returns
+        -------
+        exists:         bool
+                        True if it has already been executed, otherwise False
+
+        Notes
+        -----
+        We determine this by checking if the file exists in the _MigrationsRun
+        table.
+
+        All databases should overload this function with their own instance.
+        '''
+        pass  
+
+    def run_migration(self, migration):
+        '''
+        Run migration against database.
+
+        Parameters
+        ----------
+        migration:      str 
+                        Path to the migration script.
+
+        Returns
+        -------
+        None 
+        '''
+        # read the migration script 
+        f = open(migration, 'r')
+        sql = f.read()
+
+        try:
+            # run the migration script 
+            cursor = self.cnxn.cursor() 
+            cursor.execute(sql)
+            self.cnxn.commit()
+        except:
+            logging.error('Problem deploying {m}'.format(m=migration))
+            raise
+
+        # update the _MigrationsRun table
+        self.update_migrations_run(migration)
+
+    def update_migrations_run(self, migration):
+        '''
+        Insert the given migration into the _MigrationsRun table.
+
+        Parameters
+        ----------
+        migration:      str 
+                        Pathname for the migration script.
+
+        Returns 
+        -------
+        None 
+
+        Notes 
+        -----
+        All databases should overload this function with their own instance.
+        '''
+        pass 
