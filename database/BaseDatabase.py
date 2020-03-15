@@ -142,10 +142,6 @@ class BaseDatabase:
         try:
             # run the migration script 
             cursor = self.cnxn.cursor() 
-
-            cursor.execute('SELECT current_database();')
-            print('CURRENT DATABASE IS {db}'.format(db=cursor.fetchone()[0]))
-
             cursor.execute(sql)
             self.cnxn.commit()
         except:
