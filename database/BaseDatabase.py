@@ -83,6 +83,21 @@ class BaseDatabase:
 
         return params   
 
+    def get_name(self):
+        '''
+        Retrieve the name of the database.
+
+        Parameters
+        ----------
+        None 
+
+        Returns 
+        -------
+        dbname:     str 
+                    Name of the database.
+        '''
+        return self.dbname 
+
     def check_migration(self, migration):
         '''
         Checks if a given migration script name has already been executed 
@@ -127,6 +142,10 @@ class BaseDatabase:
         try:
             # run the migration script 
             cursor = self.cnxn.cursor() 
+
+            cursor.execute('SELECT current_database();')
+            print('CURRENT DATABASE IS {db}'.format(db=cursor.fetchone()[0]))
+
             cursor.execute(sql)
             self.cnxn.commit()
         except:

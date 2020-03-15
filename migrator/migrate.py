@@ -42,12 +42,14 @@ def _parse_args():
     parser.add_argument(
         '--host', 
         type=str, 
+        default='localhost',
         help='Name or address of host server'
     )
     
     parser.add_argument(
         '--port', 
         type=int, 
+        default=5432,
         help='Port data is being served through'
     )
     
@@ -198,7 +200,10 @@ def _remove_previously_run(server, migrate, files):
         if server.get_database().check_migration(f):
             remove.append(f)
 
+    # only include new migration scripts 
     new_files = [f for f in files if f not in remove]
+
+    return new_files
 
 
 def _run_migrations(server, files):
@@ -224,12 +229,15 @@ def _run_migrations(server, files):
         database.run_migration(migration)
 
 
-def _get_server(migrate):
+def _get_server(args, migrate):
     '''
     Connect to the server provided by the migration instructions.
 
     Parameters
     ----------
+    args:           namespace 
+                    argparse namespace containing command-line arguments
+    
     migrate:        Dictionary
                     Database migration instructions.
 
@@ -239,6 +247,14 @@ def _get_server(migrate):
     '''
     if migrate['engine'] == 'SQLite3':
         server = SQLite3Server(migrate['dbname'])
+    elif migrate['engine'] == 'PostgreSQL':
+        server = PostgreSQLServer(
+            user = args.user 
+            ,password = args.password 
+            ,host = args.host 
+            ,port = args.port 
+            ,dbname = migrate['dbname']
+        )
 
     return server 
 
@@ -261,11 +277,11 @@ def main():
     migrate = _read_instructions()
 
     # connect to database server 
-    server = _get_server(migrate)
+    server = _get_server(args, migrate)
 
     # loop through the migration folders
     for folder in migrate['migrations']:
-        
+
         # retrieve migration scripts
         files = _get_files(migrate, folder)
 
@@ -284,7 +300,7 @@ def main():
         else:
             logging.info('{fo} up to date.'.format(fo=folder))
 
-    logging.info('Databaes migrated successfully.')
+    logging.info('Database migrated successfully.')
 
 
 if __name__ == '__main__':
