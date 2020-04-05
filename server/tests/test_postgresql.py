@@ -30,12 +30,12 @@ class PostgreSQLServerTestCase(unittest.TestCase):
             self.assertIsInstance(server, PostgreSQLServer)
 
         except OperationalError:
-            print('Warning: Unable to test, verify server is running.')
+            print('Warning: Unable to test, verify PostgreSQL server is running.')
 
     def test_connection_type(self):
         '''
-        Test to ensure creating a SQLite3 server object generates a server with 
-        a connection object of the expected type.
+        Test to ensure creating a PostgreSQL server object generates a server 
+        with a connection object of the expected type.
         '''
         try:
             # create server and connection 
@@ -52,4 +52,4 @@ class PostgreSQLServerTestCase(unittest.TestCase):
             self.assertIsInstance(cnxn, connection)
 
         except OperationalError:
-            print('Warning: Unable to test, verify server is running.')
+            print('Warning: Unable to test, verify PostgreSQL server is running.')
