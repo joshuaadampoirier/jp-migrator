@@ -2,14 +2,14 @@ import logging
 import pkg_resources 
 import unittest 
 
-from psycopg2 import OperationalError 
+from pymssql import OperationalError 
 
-from database.PostgreSQLDatabase import PostgreSQLDatabase 
-from server.PostgreSQLServer import PostgreSQLServer
+from database.SQLServerDatabase import SQLServerDatabase 
+from server.SQLServer import SQLServer
 
 
 logging.basicConfig(
-    filename='TestDatabase_PostgreSQL.log',
+    filename='TestDatabase_SQLServer.log',
     level=logging.INFO,
     format='|' \
     '%(asctime)-18s|' \
@@ -22,31 +22,31 @@ logging.basicConfig(
 )
 
 
-class PostgreSQLDatabaseTestCase(unittest.TestCase):
+class SQLServerDatabaseTestCase(unittest.TestCase):
     '''
-    Test class for PostgreSQL database class.
+    Test class for SQL Server database class.
     '''
 
     def test_database_type(self):
         '''
-        Test to ensure creating a PostgreSQL database object generates an object 
+        Test to ensure creating a SQL Server database object generates an object 
         of the expected type.
         '''
         try:
             # create server object 
-            server = PostgreSQLServer(
-                'joshuapoirier',
-                'badpassword123',
-                'localhost',
-                '5432'
-                ,'testserver2'
+            server = SQLServer(
+                server='localhost',
+                port='1401',
+                user='SA',
+                password='BadPassword123',
+                dbname='TestDatabaseName'
             )
 
             database = server.get_database()
-            self.assertIsInstance(database, PostgreSQLDatabase)
+            self.assertIsInstance(database, SQLServerDatabase)
 
         except OperationalError:
-            logging.warning('Unable to test db type, verify PostgreSQL server is running.')
+            logging.warning('Unable to test db type, verify SQL Server server is running.')
 
     def test_migrations_run(self):
         '''
@@ -54,18 +54,18 @@ class PostgreSQLDatabaseTestCase(unittest.TestCase):
         '''
         try:
             # build SQL query and execute 
-            path = 'postgresql/test_migrations_run.sql'
+            path = 'sqlserver/test_migrations_run.sql'
             filepath = pkg_resources.resource_filename(__name__, path)            
             f = open(filepath, 'r')
             sql = f.read()
 
             # create server object 
-            server = PostgreSQLServer(
-                'joshuapoirier',
-                'badpassword123',
-                'localhost',
-                '5432'
-                ,'testserver3'
+            server = SQLServer(
+                server='localhost',
+                port='1401',
+                user='SA',
+                password='BadPassword123',
+                dbname='TestDatabaseName'
             )
 
             # get connection and run query
@@ -75,10 +75,10 @@ class PostgreSQLDatabaseTestCase(unittest.TestCase):
             cursor.close()
 
             # run the test 
-            self.assertEqual(cursor.fetchone()[0], '_migrationsrun')
+            self.assertEqual(cursor.fetchone()[0], '_MigrationsRun')
 
         except OperationalError:
-            logging.warning('Unable to test _MigrationsRun, verify PostgreSQL server is running.')
+            logging.warning('Unable to test _MigrationsRun, verify SQL Server server is running.')
 
         finally:
             # cleanup 
