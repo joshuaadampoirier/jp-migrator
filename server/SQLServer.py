@@ -4,6 +4,8 @@ import pymssql
 from pymssql import OperationalError
 
 from server.BaseServer import BaseServer 
+from database.SQLServerDatabase import SQLServerDatabase 
+
 
 logging.basicConfig(
     filename='SQLServerDatabase.log',
@@ -37,10 +39,6 @@ class SQLServer(BaseServer):
     password:   string 
                 Database server login password.
 
-    driver:     string
-                Database driver.
-                Defaults to 'FreeTDS'.
-
     dbname:     string 
                 Name of the database to connect to. 
                 Defaults to master, the system database.
@@ -65,9 +63,7 @@ class SQLServer(BaseServer):
         self.dbname = dbname 
 
         self.cnxn = self.__establish_connection()
-
-        # future implementation
-        #self.database = SQLServerDatabase(self.cnxn, dbname)
+        self.database = SQLServerDatabase(self.cnxn, dbname)
 
     def __del__(self):
         try:
@@ -103,7 +99,7 @@ class SQLServer(BaseServer):
         except OperationalError:
             logging.warning('Unable to connect, trying system database ...')
 
-            cnxn = pymssql.connect(
+            base_cnxn = pymssql.connect(
                 server = self.server,
                 port = self.port, 
                 user = self.user,
@@ -111,7 +107,19 @@ class SQLServer(BaseServer):
                 database = 'master'
             )
 
-            # future implementation 
-            # create database if it doesn't exist, try connecting again
+            logging.info('Connection to system database established, creating database')
+            
+            # attempt to create database 
+            database = SQLServerDatabase(base_cnxn, self.dbname)
+            base_cnxn.close()
+
+            # second/final attempt to connect to database (now that db is there)
+            cnxn = pymssql.connect(
+                server = self.server,
+                port = self.port,
+                user = self.user, 
+                password = self.password,
+                database = self.dbname
+            )
 
         return cnxn 
