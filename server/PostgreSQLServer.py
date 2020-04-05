@@ -107,7 +107,7 @@ class PostgreSQLServer(BaseServer):
                 database='postgres'
             ) 
 
-            logging.info('Creating database')
+            logging.info('Connection to system database established, creating database')
             
             # attempt to create database 
             database = PostgreSQLDatabase(base_cnxn, self.dbname)

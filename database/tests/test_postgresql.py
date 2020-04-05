@@ -1,3 +1,4 @@
+import logging 
 import pkg_resources 
 import unittest 
 
@@ -5,6 +6,20 @@ from psycopg2 import OperationalError
 
 from database.PostgreSQLDatabase import PostgreSQLDatabase 
 from server.PostgreSQLServer import PostgreSQLServer
+
+
+logging.basicConfig(
+    filename='TestDatabase_PostgreSQL.log',
+    level=logging.INFO,
+    format='|' \
+    '%(asctime)-18s|' \
+    '%(levelname)-4s|' \
+    '%(module)-18s|' \
+    '%(filename)-18s:%(lineno)-4s|' \
+    '%(funcName)-18s|' \
+    '%(message)-32s|',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 
 class PostgreSQLDatabaseTestCase(unittest.TestCase):
@@ -31,7 +46,7 @@ class PostgreSQLDatabaseTestCase(unittest.TestCase):
             self.assertIsInstance(database, PostgreSQLDatabase)
 
         except OperationalError:
-            print('Warning: Unable to test db type, verify server is running.')
+            logging.warning('Unable to test db type, verify PostgreSQL server is running.')
 
     def test_migrations_run(self):
         '''
@@ -63,7 +78,7 @@ class PostgreSQLDatabaseTestCase(unittest.TestCase):
             self.assertEqual(cursor.fetchone()[0], '_migrationsrun')
 
         except OperationalError:
-            print('Warning: Unable to test _MigrationsRun, verify server is running.')
+            logging.warning('Unable to test _MigrationsRun, verify PostgreSQL server is running.')
 
         finally:
             # cleanup 

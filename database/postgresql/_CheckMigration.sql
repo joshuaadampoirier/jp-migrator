@@ -1,6 +1,3 @@
-/*  Checks to see if a given migration script has been previously executed 
-    against the database.
-***************************************************************************** */
 DROP FUNCTION IF EXISTS public._check_migration(TEXT);
 
 
@@ -9,6 +6,28 @@ CREATE FUNCTION public._check_migration
     migration_name      TEXT 
 )
 RETURNS     BOOLEAN AS $migration_exists$
+
+/* *****************************************************************************
+
+Checks to see if a given migration exists.
+
+Args
+----
+
+    @migration_name:    TEXT
+                        Name of the migration script to check whether or not it
+                        is found in the dbo._MigrationsRun table (i.e. whether 
+                        or not the migration has been executed against this 
+                        database).
+
+Returns
+-------
+
+    @migration_exists:  BOOLEAN
+                        TRUE if found (has been executed)
+                        FALSE if not found (has not been executed)
+
+***************************************************************************** */
 
 
 DECLARE     migration_exists    BOOLEAN; 
