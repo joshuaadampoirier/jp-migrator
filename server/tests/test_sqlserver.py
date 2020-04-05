@@ -1,8 +1,23 @@
+import logging 
 import unittest 
 
 from pymssql import Connection, OperationalError
 
 from server.SQLServer import SQLServer 
+
+
+logging.basicConfig(
+    filename='TestServer_SQLServer.log',
+    level=logging.INFO,
+    format='|' \
+    '%(asctime)-18s|' \
+    '%(levelname)-4s|' \
+    '%(module)-18s|' \
+    '%(filename)-18s:%(lineno)-4s|' \
+    '%(funcName)-18s|' \
+    '%(message)-32s|',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 
 class SQLServerTestCase(unittest.TestCase):
@@ -21,14 +36,15 @@ class SQLServerTestCase(unittest.TestCase):
                 server='localhost',
                 port='1401',
                 user='SA',
-                password='BadPassword123'
+                password='BadPassword123',
+                dbname='TestDatabaseName'
             )
-
+            
             # test server object 
             self.assertIsInstance(server, SQLServer)
 
         except OperationalError:
-            print('Warning: Unable to test, verify SQL Server is running.')
+            logging.warning('Unable to test, verify SQL Server is running.')
 
     def test_connection_type(self):
         '''
@@ -42,7 +58,7 @@ class SQLServerTestCase(unittest.TestCase):
                 port='1401',
                 user='SA',
                 password='BadPassword123',
-                dbname='josh'
+                dbname='TestDatabaseName'
             )
             cnxn = server.get_connection()
 
@@ -50,4 +66,4 @@ class SQLServerTestCase(unittest.TestCase):
             self.assertIsInstance(cnxn, Connection)
 
         except OperationalError:
-            print('Warning: Unable to test, verify SQL Server is running.')
+            logging.warning('Unable to test, verify SQL Server is running.')
