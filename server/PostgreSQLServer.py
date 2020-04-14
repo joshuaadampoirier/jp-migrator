@@ -1,4 +1,5 @@
 import logging 
+import os 
 import psycopg2
 
 from psycopg2 import OperationalError 
@@ -49,8 +50,8 @@ class PostgreSQLServer(BaseServer):
     '''
     def __init__(
         self, 
-        user, 
-        password, 
+        user=os.getenv('USER'), 
+        password=None, 
         host='localhost', 
         port='5432', 
         dbname='postgres'
