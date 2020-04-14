@@ -1,7 +1,32 @@
 # jp-migrator
 Tool enabling managing database schema changes through source control.
 
-# Getting Started 
+## Installation 
+To install **jp-migrator**, clone the repo and install using pip as described 
+below.
+
+> $ git clone https://github.com/joshuaadampoirier/jp-migrator  
+> $ cd jp-migrator  
+> $ pip install .
+
+## Deployments 
+To run deploy a database using the **jp-migrator**, from the terminal navigate 
+to the directory containing the database project you wish to deploy. This 
+directory requires the *migrate.yaml* file providing deployment instructions to 
+the **jp-migrator**.
+
+> $ python  
+> \>\>\>   from migrator.migrate import main  
+> \>\>\>   main()
+
+## Testing 
+**jp-migrator** leverages Python's `unittest` library to perform unit tests. You
+can run the tests by running the following command from the terminal within the 
+**jp-migrator** directory.
+
+> $ python -m unittest discover 
+
+## Getting Started 
 
 ### SQLite3 
 SQLite3 has no external dependencies you need to install. 
