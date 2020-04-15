@@ -1,11 +1,8 @@
 import logging 
 import pymysql 
 
-from pymysql import OperationalError
-
 from server.BaseServer import BaseServer 
-# FUTURE DEVELOPMENT 
-#from database.SQLServerDatabase import SQLServerDatabase 
+from database.MySQLDatabase import MySQLDatabase 
 
 
 logging.basicConfig(
@@ -45,7 +42,7 @@ class MySQLServer(BaseServer):
                 Defaults to master, the system database.
 
     cnxn:       Database connection object
-                Connection to the SQL Server database.
+                Connection to the MySQL database.
     '''
     def __init__(
         self, 
@@ -55,7 +52,7 @@ class MySQLServer(BaseServer):
         password, 
         dbname=None,
     ):
-        logging.info('Creating MySQL Server server object')
+        logging.info('Creating MySQL server object')
 
         self.server = server
         self.port = port 
@@ -64,8 +61,7 @@ class MySQLServer(BaseServer):
         self.dbname = dbname 
 
         self.cnxn = self.__establish_connection()
-        # FUTURE DEVELOPMENT 
-        #self.database = MySQLServerDatabase(self.cnxn, dbname)
+        self.database = MySQLDatabase(self.cnxn, dbname)
 
     def __del__(self):
         try:
@@ -89,47 +85,13 @@ class MySQLServer(BaseServer):
         '''
         logging.info('Establishing server connection')
         
-        try:
-            cnxn = pymysql.connect(
-                host=self.server,
-                port=self.port,
-                user=self.user, 
-                password=self.password,
-                database=self.dbname,
-                charset='utf8mb4',
-                cursorclass=pymysql.cursors.DictCursor
-            )
-
-        except OperationalError:
-            logging.warning('Unable to connect, trying base connection ...')
-
-            base_cnxn = pymysql.connect(
-                server=self.server,
-                port=self.port, 
-                user=self.user,
-                password=self.password,
-                charset='utf8mb4',
-                cursorclass=pymysql.cursors.DictCursor
-            )
-
-            logging.info('Base connection established, creating database')
-            
-            # FUTURE DEVELOPMENT 
-            # attempt to create database 
-            #database = MySQLServerDatabase(base_cnxn, self.dbname)
-            #base_cnxn.close()
-            cnxn = base_cnxn
-
-            # FUTURE DEVELOPMENT
-            # second/final attempt to connect to database (now that db is there)
-            #cnxn = pymysql.connect(
-            #    host=self.server,
-            #    port=self.port,
-            #    user=self.user, 
-            #    password=self.password,
-            #    database=self.dbname,
-            #    charset='utf8mb4',
-            #    cursorclass=pymysql.cursors.DictCursor
-            #)
+        # connect to the server, without a database in mind
+        cnxn = pymysql.connect(
+            host=self.server,
+            port=self.port,
+            user=self.user, 
+            password=self.password,
+            charset='utf8mb4'
+        )
 
         return cnxn 

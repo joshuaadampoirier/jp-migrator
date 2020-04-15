@@ -38,7 +38,8 @@ class MySQLServerTestCase(unittest.TestCase):
                 server='localhost',
                 port=3306,
                 user='root',
-                password='badpassword123'
+                password='badpassword123',
+                dbname='testdatabase3'
             )
             
             # test server object 
@@ -58,7 +59,8 @@ class MySQLServerTestCase(unittest.TestCase):
                 server='localhost',
                 port=3306,
                 user='root',
-                password='badpassword123'
+                password='badpassword123',
+                dbname='testdatabase3'
             )
             cnxn = server.get_connection()
 

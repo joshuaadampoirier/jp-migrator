@@ -1,13 +1,10 @@
 import logging 
 import pkg_resources 
 
-from psycopg2.errors import DuplicateDatabase 
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-
 from database.BaseDatabase import BaseDatabase 
 
 logging.basicConfig(
-    filename='PostgreSQLDatabase.log',
+    filename='MySQLServerDatabase.log',
     level=logging.INFO,
     format='|' \
     '%(asctime)-18s|' \
@@ -20,9 +17,9 @@ logging.basicConfig(
 )
 
 
-class PostgreSQLDatabase(BaseDatabase):
+class MySQLDatabase(BaseDatabase):
     '''
-    PostgreSQL database class.
+    MySQL database class.
 
     Parameters 
     ----------
@@ -33,9 +30,10 @@ class PostgreSQLDatabase(BaseDatabase):
                 Name of the database to be created.
     '''
     def __init__(self, cnxn, dbname):
-        logging.info('Creating PostgreSQL database object')
+        logging.info('Creating MySQL database object')
         self.cnxn = cnxn 
         self.dbname = dbname
+
         self.__create_database()
         self.__migrations_run()
         self.__check_migration()
@@ -53,21 +51,19 @@ class PostgreSQLDatabase(BaseDatabase):
         -------
         None 
         '''
-        # localize connection object
-        cnxn = self.cnxn 
-        cnxn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-
         # build query and open cursor
-        logging.info('Creating PostgreSQL database if does not exist')
-        sql = 'CREATE DATABASE IF NOT EXISTS {db}'.format(db=self.dbname)
-        cursor = cnxn.cursor() 
+        logging.info('Creating MySQL database if it does not exist')
+        sql = f'CREATE DATABASE IF NOT EXISTS {self.dbname};'
 
         # create the database 
+        cursor = self.cnxn.cursor() 
+        cursor._defer_warnings = True
         cursor.execute(sql)
-        cnxn.commit()
+        self.cnxn.select_db(self.dbname)
         
         # cleanup
         cursor.close() 
+        self.cnxn.commit()        
 
     def __migrations_run(self):
         '''
@@ -82,14 +78,15 @@ class PostgreSQLDatabase(BaseDatabase):
         -------
         None 
         '''
-        logging.info('Create _migrationsrun table')
+        logging.info('Create _MigrationsRun table')
         
         # open sql file
-        path = 'postgresql/_MigrationsRun.sql'
+        path = 'mysql/_MigrationsRun.sql'
         filepath = pkg_resources.resource_filename(__name__, path)
         f = open(filepath, 'r')        
 
         cursor = self.cnxn.cursor()
+        cursor._defer_warnings = True
 
         # run sql command
         sql = f.read() 
@@ -114,17 +111,19 @@ class PostgreSQLDatabase(BaseDatabase):
         -------
         None 
         '''
-        logging.info('Create _checkmigration function')
+        logging.info('Create _CheckMigration function')
 
         # open sql file 
-        path = 'postgresql/_CheckMigration.sql'
+        path = 'mysql/_CheckMigration.sql'
         filepath = pkg_resources.resource_filename(__name__, path)
         f = open(filepath, 'r')
 
         cursor = self.cnxn.cursor() 
+        cursor._defer_warnings = True
 
         # run sql command 
-        sql = f.read() 
+        sql = f.read()
+        cursor.execute('DROP FUNCTION IF EXISTS _Check_Migration;')
         cursor.execute(sql)
         self.cnxn.commit() 
 
@@ -145,17 +144,19 @@ class PostgreSQLDatabase(BaseDatabase):
         -------
         None 
         '''
-        logging.info('Create _insert_migrationsrun stored procedure')
+        logging.info('Create _Insert_MigrationsRun stored procedure')
 
         # open sql file 
-        path = 'postgresql/_InsertMigrationsRun.sql'
+        path = 'mysql/_InsertMigrationsRun.sql'
         filepath = pkg_resources.resource_filename(__name__, path)
         f = open(filepath, 'r')
 
         cursor = self.cnxn.cursor() 
+        cursor._defer_warnings = True
 
         # run sql command 
         sql = f.read() 
+        cursor.execute('DROP PROCEDURE IF EXISTS _Insert_MigrationsRun;')
         cursor.execute(sql)
         self.cnxn.commit() 
 
@@ -180,9 +181,10 @@ class PostgreSQLDatabase(BaseDatabase):
         '''
         # create database cursor 
         cursor = self.cnxn.cursor()
+        cursor._defer_warnings = True
 
         # build sql query to determine if migration has been run
-        sql = "SELECT public._check_migration('{m}')".format(m=migration)
+        sql = f"SELECT dbo._Check_Migration('{migration}');"
 
         # run the sql query
         cursor.execute(sql)
@@ -208,9 +210,10 @@ class PostgreSQLDatabase(BaseDatabase):
         '''
         # create database cursor 
         cursor = self.cnxn.cursor() 
+        cursor._defer_warnings = True
 
         # build sql query to update _MigrationsRun 
-        sql = "CALL public._insert_migrationsrun('{m}')".format(m=migration)
+        sql = f"CALL dbo._Insert_MigrationsRun('{migration}');"
 
         # run the sql query 
         cursor.execute(sql)
