@@ -16,7 +16,7 @@ Args
 
     @migration_name     NVARCHAR(MAX)
                         Filename of the migration script to be inserted into the 
-                        dbo_MigrationsRun table. 
+                        dbo._MigrationsRun table. 
 
 
 ***************************************************************************** */
