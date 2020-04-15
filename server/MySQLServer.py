@@ -1,14 +1,15 @@
 import logging 
-import pymssql 
+import pymysql 
 
-from pymssql import OperationalError
+from pymysql import OperationalError
 
 from server.BaseServer import BaseServer 
-from database.SQLServerDatabase import SQLServerDatabase 
+# FUTURE DEVELOPMENT 
+#from database.SQLServerDatabase import SQLServerDatabase 
 
 
 logging.basicConfig(
-    filename='SQLServerDatabase.log',
+    filename='MySQLServerDatabase.log',
     level=logging.INFO,
     format='|' \
     '%(asctime)-18s|' \
@@ -21,9 +22,9 @@ logging.basicConfig(
 )
 
 
-class SQLServer(BaseServer):
+class MySQLServer(BaseServer):
     '''
-    SQLServer server object.
+    MySQLServer server object.
 
     Parameters 
     ----------
@@ -52,9 +53,9 @@ class SQLServer(BaseServer):
         port,
         user, 
         password, 
-        dbname='master',
+        dbname=None,
     ):
-        logging.info('Creating SQL Server server object')
+        logging.info('Creating MySQL Server server object')
 
         self.server = server
         self.port = port 
@@ -63,7 +64,8 @@ class SQLServer(BaseServer):
         self.dbname = dbname 
 
         self.cnxn = self.__establish_connection()
-        self.database = SQLServerDatabase(self.cnxn, dbname)
+        # FUTURE DEVELOPMENT 
+        #self.database = MySQLServerDatabase(self.cnxn, dbname)
 
     def __del__(self):
         try:
@@ -74,7 +76,7 @@ class SQLServer(BaseServer):
 
     def __establish_connection(self):
         '''
-        Retrieve connection to the SQL Server database server.
+        Retrieve connection to the MySQL Server database server.
 
         Parameters 
         ----------
@@ -83,43 +85,51 @@ class SQLServer(BaseServer):
         Returns
         -------
         cnxn:       connection object 
-                    Open connection to the SQL Server database server.
+                    Open connection to the MySQL Server database server.
         '''
         logging.info('Establishing server connection')
         
         try:
-            cnxn = pymssql.connect(
-                server=self.server,
+            cnxn = pymysql.connect(
+                host=self.server,
                 port=self.port,
                 user=self.user, 
                 password=self.password,
-                database=self.dbname
+                database=self.dbname,
+                charset='utf8mb4',
+                cursorclass=pymysql.cursors.DictCursor
             )
 
         except OperationalError:
-            logging.warning('Unable to connect, trying system database ...')
+            logging.warning('Unable to connect, trying base connection ...')
 
-            base_cnxn = pymssql.connect(
+            base_cnxn = pymysql.connect(
                 server=self.server,
                 port=self.port, 
                 user=self.user,
                 password=self.password,
-                database='master'
+                charset='utf8mb4',
+                cursorclass=pymysql.cursors.DictCursor
             )
 
-            logging.info('Connection to system database established, creating database')
+            logging.info('Base connection established, creating database')
             
+            # FUTURE DEVELOPMENT 
             # attempt to create database 
-            database = SQLServerDatabase(base_cnxn, self.dbname)
-            base_cnxn.close()
+            #database = MySQLServerDatabase(base_cnxn, self.dbname)
+            #base_cnxn.close()
+            cnxn = base_cnxn
 
+            # FUTURE DEVELOPMENT
             # second/final attempt to connect to database (now that db is there)
-            cnxn = pymssql.connect(
-                server=self.server,
-                port=self.port,
-                user=self.user, 
-                password=self.password,
-                database=self.dbname
-            )
+            #cnxn = pymysql.connect(
+            #    host=self.server,
+            #    port=self.port,
+            #    user=self.user, 
+            #    password=self.password,
+            #    database=self.dbname,
+            #    charset='utf8mb4',
+            #    cursorclass=pymysql.cursors.DictCursor
+            #)
 
         return cnxn 
