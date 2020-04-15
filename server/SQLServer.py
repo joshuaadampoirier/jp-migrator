@@ -89,22 +89,22 @@ class SQLServer(BaseServer):
         
         try:
             cnxn = pymssql.connect(
-                server = self.server,
-                port = self.port,
-                user = self.user, 
-                password = self.password,
-                database = self.dbname
+                server=self.server,
+                port=self.port,
+                user=self.user, 
+                password=self.password,
+                database=self.dbname
             )
 
         except OperationalError:
             logging.warning('Unable to connect, trying system database ...')
 
             base_cnxn = pymssql.connect(
-                server = self.server,
-                port = self.port, 
-                user = self.user,
-                password = self.password,
-                database = 'master'
+                server=self.server,
+                port=self.port, 
+                user=self.user,
+                password=self.password,
+                database='master'
             )
 
             logging.info('Connection to system database established, creating database')
@@ -115,11 +115,11 @@ class SQLServer(BaseServer):
 
             # second/final attempt to connect to database (now that db is there)
             cnxn = pymssql.connect(
-                server = self.server,
-                port = self.port,
-                user = self.user, 
-                password = self.password,
-                database = self.dbname
+                server=self.server,
+                port=self.port,
+                user=self.user, 
+                password=self.password,
+                database=self.dbname
             )
 
         return cnxn 
