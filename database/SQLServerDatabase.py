@@ -54,61 +54,26 @@ class SQLServerDatabase(BaseDatabase):
         # localize connection object
         cnxn = self.cnxn 
 
-        if not self.__check_database_exists():
-            logging.info('Creating SQL Server database')
-
-            # build query and open cursor
-            sql = f'''
-                IF NOT EXISTS 
-                (
-                    SELECT      1
-                    FROM        SYS.DATABASES 
-                    WHERE       NAME = '{self.dbname}'
-                )
-                    CREATE DATABASE {self.dbname}
-            '''
-
-            # create the database 
-            cnxn.autocommit(True)
-            cursor = cnxn.cursor() 
-            cursor.execute(sql)
-        
-            # cleanup
-            cursor.close() 
-            cnxn.autocommit(False)
-
-    def __check_database_exists(self):
-        '''
-        Check if the database already exists on the server. If it does, we don't
-        need to create it.
-
-        Parameters
-        ----------
-        None 
-
-        Returns
-        -------
-        exists:     bool 
-                    True if database exists, False otherwise
-        '''
-        logging.info('Checking to see if database exists.')
-
-        # build query and cursor 
+        # build query and open cursor
+        logging.info('Creating SQL Server database if does not exist')
         sql = f'''
-            SELECT      COUNT(1)
-            FROM        SYS.DATABASES 
-            WHERE       NAME = '{self.dbname}';
+            IF NOT EXISTS 
+            (
+                SELECT      1
+                FROM        SYS.DATABASES 
+                WHERE       NAME = '{self.dbname}'
+            )
+                CREATE DATABASE {self.dbname}
         '''
-        cursor = self.cnxn.cursor()
 
-        # execute the query 
+        # create the database 
+        cnxn.autocommit(True)
+        cursor = cnxn.cursor() 
         cursor.execute(sql)
-        exists = True if cursor.fetchone()[0] > 0 else False
         
-        # cleanup 
+        # cleanup
         cursor.close() 
-
-        return exists 
+        cnxn.autocommit(False)
 
     def __migrations_run(self):
         '''

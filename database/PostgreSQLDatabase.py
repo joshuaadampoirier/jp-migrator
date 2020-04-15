@@ -57,52 +57,17 @@ class PostgreSQLDatabase(BaseDatabase):
         cnxn = self.cnxn 
         cnxn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 
-        if not self.__check_database_exists():
-            logging.info('Creating PostgreSQL database')
+        # build query and open cursor
+        logging.info('Creating PostgreSQL database if does not exist')
+        sql = 'CREATE DATABASE IF NOT EXISTS {db}'.format(db=self.dbname)
+        cursor = cnxn.cursor() 
 
-            # build query and open cursor
-            sql = 'CREATE DATABASE IF NOT EXISTS {db}'.format(db=self.dbname)
-            cursor = cnxn.cursor() 
-
-            # create the database 
-            cursor.execute(sql)
-            cnxn.commit()
-        
-            # cleanup
-            cursor.close() 
-
-    def __check_database_exists(self):
-        '''
-        Check if the database already exists on the server. If it does, we don't
-        need to create it.
-
-        Parameters
-        ----------
-        None 
-
-        Returns
-        -------
-        exists:     bool 
-                    True if database exists, False otherwise
-        '''
-        logging.info('Checking to see if database exists.')
-
-        # build query and cursor 
-        sql = '''
-            SELECT      COUNT(1)
-            FROM        pg_catalog.pg_database 
-            WHERE       datname = '{db}';
-        '''.format(db=self.dbname)
-        cursor = self.cnxn.cursor()
-
-        # execute the query 
+        # create the database 
         cursor.execute(sql)
-        exists = True if cursor.fetchone()[0] > 0 else False
-
-        # cleanup 
+        cnxn.commit()
+        
+        # cleanup
         cursor.close() 
-
-        return exists 
 
     def __migrations_run(self):
         '''
