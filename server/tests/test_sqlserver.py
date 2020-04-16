@@ -25,11 +25,19 @@ class SQLServerTestCase(unittest.TestCase):
     Test class for SQL Server server class.
     '''
 
-    def test_server_type(self):
+    def __build_server(self):
         '''
-        Test to ensure creating a SQL Server server object generates an object 
-        of the expected type.
+        Build SQL Server object to run unit tests against.
+
+        Args:
+            None 
+
+        Returns:
+            server:     SQL Server object 
+                        SQL Server object representing a running SQL Server
         '''
+        server = None 
+
         try:
             # create server object 
             server = SQLServer(
@@ -39,31 +47,35 @@ class SQLServerTestCase(unittest.TestCase):
                 password='BadPassword123',
                 dbname='TestDatabaseName'
             )
-            
-            # test server object 
-            self.assertIsInstance(server, SQLServer)
 
         except OperationalError:
-            logging.warning('Unable to test, verify SQL Server is running.')
+            logging.warning('Verify SQL Server is running.')
+
+        finally:
+            return server 
+
+    def test_server_type(self):
+        '''
+        Test to ensure creating a SQL Server server object generates an object 
+        of the expected type.
+        '''
+        server = self.__build_server()
+        if server is None:
+            self.skipTest('Verify SQL Server is running')
+            
+        # test server object 
+        self.assertIsInstance(server, SQLServer)
 
     def test_connection_type(self):
         '''
         Test to ensure creating a SQL Server server object generates a server 
         with a connection object of the expected type.
         '''
-        try:
-            # create server and connection 
-            server = SQLServer(
-                server='localhost',
-                port='1401',
-                user='SA',
-                password='BadPassword123',
-                dbname='TestDatabaseName'
-            )
-            cnxn = server.get_connection()
+        server = self.__build_server() 
+        if server is None:
+            self.skipTest('Verify SQL Server is running')
 
-            # test connection type 
-            self.assertIsInstance(cnxn, Connection)
+        cnxn = server.get_connection()
 
-        except OperationalError:
-            logging.warning('Unable to test, verify SQL Server is running.')
+        # test connection type 
+        self.assertIsInstance(cnxn, Connection)

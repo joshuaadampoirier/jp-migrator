@@ -27,11 +27,19 @@ class MySQLServerTestCase(unittest.TestCase):
     Test class for MySQL Server server class.
     '''
 
-    def test_server_type(self):
+    def __build_server(self):
         '''
-        Test to ensure creating a MySQL Server server object generates an object 
-        of the expected type.
+        Build MySQL server object to run unit tests against.
+
+        Args:
+            None 
+
+        Returns:
+            server:     MySQLServer object 
+                        MySQLServer object representing a running MySQL server
         '''
+        server = None 
+
         try:
             # create server object 
             server = MySQLServer(
@@ -41,31 +49,35 @@ class MySQLServerTestCase(unittest.TestCase):
                 password='badpassword123',
                 dbname='testdatabase3'
             )
-            
-            # test server object 
-            self.assertIsInstance(server, MySQLServer)
 
         except OperationalError:
-            logging.warning('Unable to test, verify MySQL Server is running.')
+            logging.warning('Verify MySQL server is running.')
+
+        finally:
+            return server 
+
+    def test_server_type(self):
+        '''
+        Test to ensure creating a MySQL Server server object generates an object 
+        of the expected type.
+        '''
+        # build server 
+        server = self.__build_server()
+        if server is None:
+            self.skipTest('Verify MySQL server is running')
+
+        self.assertIsInstance(server, MySQLServer)
 
     def test_connection_type(self):
         '''
         Test to ensure creating a MySQL Server server object generates a server 
         with a connection object of the expected type.
         '''
-        try:
-            # create server and connection 
-            server = MySQLServer(
-                server='localhost',
-                port=3306,
-                user='root',
-                password='badpassword123',
-                dbname='testdatabase3'
-            )
-            cnxn = server.get_connection()
-
-            # test connection type 
-            self.assertIsInstance(cnxn, Connection)
-
-        except OperationalError:
-            logging.warning('Unable to test, verify MySQL Server is running.')
+        # build server 
+        server = self.__build_server()
+        if server is None:
+            self.skipTest('Verify MySQL server is running')
+        
+        # test connection type 
+        cnxn = server.get_connection() 
+        self.assertIsInstance(cnxn, Connection)
