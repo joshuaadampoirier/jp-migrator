@@ -26,49 +26,57 @@ class PostgreSQLServerTestCase(unittest.TestCase):
     Test class for PostgreSQL server class.
     '''
 
+    def __build_server(self):
+        '''
+        Build PostgreSQL server object to run unit tests against.
+
+        Args:
+            None 
+
+        Returns:
+            server:     PostgreSQLServer object 
+                        PostgreSQLServer object representing a running PG server
+        '''
+        server = None 
+
+        try:
+            # create server object 
+            server = PostgreSQLServer(
+                user='joshuapoirier',
+                password='badpassword123',
+                host='localhost',
+                port='5432',
+                dbname='testserver'
+            )
+
+        except OperationalError:
+            logging.warning('Verify PostgreSQL server is running.')
+
+        finally:
+            return server 
+
     def test_server_type(self):
         '''
         Test to ensure creating a PostgreSQL server object generates an object 
         of the expected type.
         '''
-        logging.info('Test Server SQLite3: Server type')
+        server = self.__build_server()
+        if server is None:
+            self.skipTest('Verify PostgreSQL server is running')
 
-        try:
-            # create server object 
-            server = PostgreSQLServer(
-                user='joshuapoirier'
-                ,password='badpassword123'
-                ,host='localhost'
-                ,port='5432'
-                ,dbname='testserver'
-            )
-
-            # test server object 
-            self.assertIsInstance(server, PostgreSQLServer)
-
-        except OperationalError:
-            logging.warning('Unable to test, verify PostgreSQL server is running.')
+        # test server object 
+        self.assertIsInstance(server, PostgreSQLServer)
 
     def test_connection_type(self):
         '''
         Test to ensure creating a PostgreSQL server object generates a server 
         with a connection object of the expected type.
         '''
-        logging.info('Test Server SQLite3: Server type')
+        server = self.__build_server() 
+        if server is None:
+            self.skipTest('Verify PostgreSQL server is running')
 
-        try:
-            # create server and connection 
-            server = PostgreSQLServer(
-                user='joshuapoirier'
-                ,password='badpassword123'
-                ,host='localhost'
-                ,port='5432'
-                ,dbname='testserver'
-            )
-            cnxn = server.get_connection()
+        cnxn = server.get_connection()
 
-            # test connection type 
-            self.assertIsInstance(cnxn, connection)
-
-        except OperationalError:
-            logging.warning('Unable to test, verify PostgreSQL server is running.')
+        # test connection type 
+        self.assertIsInstance(cnxn, connection)
