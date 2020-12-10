@@ -1,21 +1,21 @@
-import logging 
-import pymssql 
+import logging
+import pymssql
 
 from pymssql import OperationalError
 
-from server.BaseServer import BaseServer 
-from database.SQLServerDatabase import SQLServerDatabase 
+from server.BaseServer import BaseServer
+from database.SQLServerDatabase import SQLServerDatabase
 
 
 logging.basicConfig(
     filename='SQLServerDatabase.log',
     level=logging.INFO,
-    format='|' \
-    '%(asctime)-18s|' \
-    '%(levelname)-4s|' \
-    '%(module)-18s|' \
-    '%(filename)-18s:%(lineno)-4s|' \
-    '%(funcName)-18s|' \
+    format='|'
+    '%(asctime)-18s|'
+    '%(levelname)-4s|'
+    '%(module)-18s|'
+    '%(filename)-18s:%(lineno)-4s|'
+    '%(funcName)-18s|'
     '%(message)-32s|',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
@@ -25,42 +25,42 @@ class SQLServer(BaseServer):
     '''
     SQLServer server object.
 
-    Parameters 
+    Parameters
     ----------
-    server:     string 
+    server:     string
                 Server address to connect to.
 
     port:       int
                 Port to connect to server through
-    
-    user:       string 
+
+    user:       string
                 Database server login name.
 
-    password:   string 
+    password:   string
                 Database server login password.
 
-    dbname:     string 
-                Name of the database to connect to. 
+    dbname:     string
+                Name of the database to connect to.
                 Defaults to master, the system database.
 
     cnxn:       Database connection object
                 Connection to the SQL Server database.
     '''
     def __init__(
-        self, 
+        self,
         server,
         port,
-        user, 
-        password, 
-        dbname='master',
+        user,
+        password,
+        dbname='master'
     ):
         logging.info('Creating SQL Server server object')
 
         self.server = server
-        self.port = port 
-        self.user = user  
-        self.password = password 
-        self.dbname = dbname 
+        self.port = port
+        self.user = user
+        self.password = password
+        self.dbname = dbname
 
         self.cnxn = self.__establish_connection()
         self.database = SQLServerDatabase(self.cnxn, dbname)
@@ -76,22 +76,22 @@ class SQLServer(BaseServer):
         '''
         Retrieve connection to the SQL Server database server.
 
-        Parameters 
+        Parameters
         ----------
         None
 
         Returns
         -------
-        cnxn:       connection object 
+        cnxn:       connection object
                     Open connection to the SQL Server database server.
         '''
         logging.info('Establishing server connection')
-        
+
         try:
             cnxn = pymssql.connect(
                 server=self.server,
                 port=self.port,
-                user=self.user, 
+                user=self.user,
                 password=self.password,
                 database=self.dbname
             )
@@ -101,25 +101,25 @@ class SQLServer(BaseServer):
 
             base_cnxn = pymssql.connect(
                 server=self.server,
-                port=self.port, 
+                port=self.port,
                 user=self.user,
                 password=self.password,
                 database='master'
             )
 
             logging.info('Connection to system database established, creating database')
-            
-            # attempt to create database 
-            database = SQLServerDatabase(base_cnxn, self.dbname)
+
+            # attempt to create database
+            SQLServerDatabase(base_cnxn, self.dbname)
             base_cnxn.close()
 
             # second/final attempt to connect to database (now that db is there)
             cnxn = pymssql.connect(
                 server=self.server,
                 port=self.port,
-                user=self.user, 
+                user=self.user,
                 password=self.password,
                 database=self.dbname
             )
 
-        return cnxn 
+        return cnxn

@@ -1,17 +1,19 @@
-import logging 
-import pkg_resources 
+import logging
+import pkg_resources
 
-from database.BaseDatabase import BaseDatabase 
+from sqlite3 import OperationalError
+
+from database.BaseDatabase import BaseDatabase
 
 logging.basicConfig(
     filename='SQLite3Database.log',
     level=logging.INFO,
-    format='|' \
-    '%(asctime)-18s|' \
-    '%(levelname)-4s|' \
-    '%(module)-18s|' \
-    '%(filename)-18s:%(lineno)-4s|' \
-    '%(funcName)-18s|' \
+    format='|'
+    '%(asctime)-18s|'
+    '%(levelname)-4s|'
+    '%(module)-18s|'
+    '%(filename)-18s:%(lineno)-4s|'
+    '%(funcName)-18s|'
     '%(message)-32s|',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
@@ -21,14 +23,14 @@ class SQLite3Database(BaseDatabase):
     '''
     SQLite3 database class.
 
-    Parameters 
+    Parameters
     ----------
     cnxn:       database server connection
                 Connection to the database.
     '''
     def __init__(self, cnxn):
         logging.info('Creating database object')
-        self.cnxn = cnxn 
+        self.cnxn = cnxn
         self.__migrations_run()
 
     def __migrations_run(self):
@@ -38,14 +40,14 @@ class SQLite3Database(BaseDatabase):
 
         Parameters
         ----------
-        None 
+        None
 
         Returns
         -------
-        None 
+        None
         '''
         logging.info('Creating _migrationsrun table')
-        
+
         # open sql file
         path = 'sqlite3/_MigrationsRun.sql'
         filepath = pkg_resources.resource_filename(__name__, path)
@@ -54,22 +56,22 @@ class SQLite3Database(BaseDatabase):
         cursor = self.cnxn.cursor()
 
         # run sql command
-        sql = f.read() 
+        sql = f.read()
         cursor.execute(sql)
         self.cnxn.commit()
-        
+
         # cleanup
         f.close()
         cursor.close()
 
     def check_migration(self, migration):
         '''
-        Checks if a given migration script name has already been executed 
-        against this database. 
+        Checks if a given migration script name has already been executed
+        against this database.
 
         Parameters
         ----------
-        migration:      str 
+        migration:      str
                         Path to the migration file being investigated.
 
         Returns
@@ -85,7 +87,7 @@ class SQLite3Database(BaseDatabase):
         SQLite3 does not support stored procedures, so we must dynamically build
         the SQL query here.
         '''
-        # create database cursor 
+        # create database cursor
         cursor = self.cnxn.cursor()
 
         # build sql query to determine if migration has been run
@@ -97,14 +99,14 @@ class SQLite3Database(BaseDatabase):
 
         # run the sql query
         cursor.execute(sql)
-        
+
         # if non-zero returned, migration exists; otherwise not
         if cursor.fetchone()[0] > 0:
-            exists = True 
+            exists = True
         else:
-            exists = False 
+            exists = False
 
-        return exists 
+        return exists
 
     def update_migrations_run(self, migration):
         '''
@@ -112,24 +114,24 @@ class SQLite3Database(BaseDatabase):
 
         Parameters
         ----------
-        migration:      str 
+        migration:      str
                         Pathname for the migration script.
 
-        Returns 
+        Returns
         -------
-        None 
+        None
         '''
-        # create database cursor 
-        cursor = self.cnxn.cursor() 
+        # create database cursor
+        cursor = self.cnxn.cursor()
 
-        # build sql query to update _MigrationsRun 
+        # build sql query to update _MigrationsRun
         sql = '''
-            INSERT INTO _MigrationsRun 
+            INSERT INTO _MigrationsRun
             (
-                Migration 
-                ,DateRun 
+                Migration
+                ,DateRun
             )
-            VALUES 
+            VALUES
             (
                 '{m}'
                 ,DATETIME('now')
@@ -137,12 +139,12 @@ class SQLite3Database(BaseDatabase):
         '''.format(m=migration)
 
         try:
-            # run the sql query 
+            # run the sql query
             cursor.execute(sql)
-            self.cnxn.commit() 
+            self.cnxn.commit()
 
-        except sqlite3.OperationalError:
+        except OperationalError:
             logging.error('Problem updating _MigrationsRun for {m}'.format(
                 m=migration
             ))
-            raise sqlite3.OperationalError
+            raise OperationalError
