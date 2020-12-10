@@ -1,22 +1,21 @@
-import argparse 
-import logging 
-import os 
+import argparse
+import logging
+import os
 from pathlib import Path
 import yaml
 
-from server.BaseServer import BaseServer 
-from server.SQLite3Server import SQLite3Server 
+from server.SQLite3Server import SQLite3Server
 from server.PostgreSQLServer import PostgreSQLServer
 
 logging.basicConfig(
     filename='Migrate.log',
     level=logging.INFO,
-    format='|' \
-    '%(asctime)-18s|' \
-    '%(levelname)-4s|' \
-    '%(module)-18s|' \
-    '%(filename)-18s:%(lineno)-4s|' \
-    '%(funcName)-18s|' \
+    format='|'
+    '%(asctime)-18s|'
+    '%(levelname)-4s|'
+    '%(module)-18s|'
+    '%(filename)-18s:%(lineno)-4s|'
+    '%(funcName)-18s|'
     '%(message)-32s|',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
@@ -24,14 +23,14 @@ logging.basicConfig(
 
 def _parse_args():
     '''
-    Parses and validates command-line arguments. Generates help and usage 
+    Parses and validates command-line arguments. Generates help and usage
     messageds.
 
     Parameters
     ----------
-    None 
+    None
 
-    Returns 
+    Returns
     -------
     args:       Namespace
                 Populated with values
@@ -40,28 +39,28 @@ def _parse_args():
 
     # optional host argument
     parser.add_argument(
-        '--host', 
-        type=str, 
+        '--host',
+        type=str,
         default='localhost',
         help='Name or address of host server'
     )
-    
+
     parser.add_argument(
-        '--port', 
-        type=int, 
+        '--port',
+        type=int,
         default=5432,
         help='Port data is being served through'
     )
-    
+
     parser.add_argument(
-        '--user', 
-        type=str, 
+        '--user',
+        type=str,
         help='Server login username'
     )
-    
+
     parser.add_argument(
-        '--password', 
-        type=str, 
+        '--password',
+        type=str,
         help='Server login password'
     )
 
@@ -71,22 +70,22 @@ def _parse_args():
 
 def _read_instructions():
     '''
-    Read the database migration instructions. These are contained in the 
+    Read the database migration instructions. These are contained in the
     migrate.yaml file of the database project.
 
     Parameters
     ----------
-    None 
+    None
 
     Returns
     -------
-    migrate:        Dictionary 
+    migrate:        Dictionary
                     Database metadata and migration instructions
 
     Notes
     -----
-    This function assumes that the current working directory is the root 
-    directory of the database project. If no migrate.yaml file is found, we 
+    This function assumes that the current working directory is the root
+    directory of the database project. If no migrate.yaml file is found, we
     throw an error.
     '''
     try:
@@ -94,9 +93,9 @@ def _read_instructions():
         migrate = yaml.safe_load(stream)
     except FileNotFoundError:
         logging.error('Database project must have migrate.yaml to be deployed.')
-        raise FileNotFoundError 
+        raise FileNotFoundError
 
-    return migrate 
+    return migrate
 
 
 def _get_files(migrate, folder):
@@ -105,7 +104,7 @@ def _get_files(migrate, folder):
 
     Parameters
     ----------
-    migrate:        Dictionary 
+    migrate:        Dictionary
                     Database migration instructions.
 
     folder:         str
@@ -119,15 +118,15 @@ def _get_files(migrate, folder):
     # initialize list of files
     files = []
 
-    # recursively locate migration scripts 
-    if migrate['migrations'][folder]['recursive'] == True:
+    # recursively locate migration scripts
+    if migrate['migrations'][folder]['recursive']:
         logging.info('Recursively locating {fo} migrations.'.format(fo=folder))
 
         pathlist = Path(folder).glob('**/*.sql')
         for path in pathlist:
             files.append(str(path))
 
-    # locate migration scripts 
+    # locate migration scripts
     else:
         logging.info('Locating {fo} migrations'.format(fo=folder))
 
@@ -143,7 +142,7 @@ def _get_files(migrate, folder):
 
 def _order_files(migrate, folder, files):
     '''
-    Re-order the migration files to ensure those listed by the migration 
+    Re-order the migration files to ensure those listed by the migration
     instructions are executed first.
 
     Parameters
@@ -151,7 +150,7 @@ def _order_files(migrate, folder, files):
     migrate:        Dictionary
                     Database migration instructions.
 
-    folder:         str 
+    folder:         str
                     Folder of migration scripts to execute.
 
     files:          List
@@ -174,14 +173,14 @@ def _order_files(migrate, folder, files):
 
 def _remove_previously_run(server, migrate, files):
     '''
-    Remove migration scripts which have been previously executed. 
+    Remove migration scripts which have been previously executed.
 
     Parameters
     ----------
     server:         BaseServer
                     Database server object.
 
-    migrate:        Dictionary 
+    migrate:        Dictionary
                     Database migration instructions.
 
     files:          List
@@ -189,7 +188,7 @@ def _remove_previously_run(server, migrate, files):
 
     Returns
     -------
-    new_files:      List 
+    new_files:      List
                     List of migration scripts which need to be executed.
     '''
     remove = []
@@ -200,7 +199,7 @@ def _remove_previously_run(server, migrate, files):
         if server.get_database().check_migration(f):
             remove.append(f)
 
-    # only include new migration scripts 
+    # only include new migration scripts
     new_files = [f for f in files if f not in remove]
 
     return new_files
@@ -212,17 +211,17 @@ def _run_migrations(server, files):
 
     Parameters
     ----------
-    server:         BaseServer 
+    server:         BaseServer
                     Database server object.
 
-    files:          List 
+    files:          List
                     List of migration scripts to be executed.
 
     Returns
     -------
-    None 
+    None
     '''
-    database = server.get_database() 
+    database = server.get_database()
 
     # loop through migrations
     for migration in files:
@@ -235,9 +234,9 @@ def _get_server(args, migrate):
 
     Parameters
     ----------
-    args:           namespace 
+    args:           namespace
                     argparse namespace containing command-line arguments
-    
+
     migrate:        Dictionary
                     Database migration instructions.
 
@@ -249,14 +248,14 @@ def _get_server(args, migrate):
         server = SQLite3Server(migrate['dbname'])
     elif migrate['engine'] == 'PostgreSQL':
         server = PostgreSQLServer(
-            user = args.user 
-            ,password = args.password 
-            ,host = args.host 
-            ,port = args.port 
-            ,dbname = migrate['dbname']
+            user=args.user,
+            password=args.password,
+            host=args.host,
+            port=args.port,
+            dbname=migrate['dbname']
         )
 
-    return server 
+    return server
 
 
 def main():
@@ -276,7 +275,7 @@ def main():
     # read database migration instructions
     migrate = _read_instructions()
 
-    # connect to database server 
+    # connect to database server
     server = _get_server(args, migrate)
 
     # loop through the migration folders
@@ -293,7 +292,7 @@ def main():
         if files and 'order' in migrate['migrations'][folder].keys():
             _order_files(migrate, folder, files)
 
-        # run the migration scripts 
+        # run the migration scripts
         if files:
             _run_migrations(server, files)
             logging.info('{fo} successfully migrated.'.format(fo=folder))

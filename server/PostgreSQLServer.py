@@ -1,23 +1,22 @@
-import logging 
-import os 
+import logging
+import os
 import psycopg2
 
-from psycopg2 import OperationalError 
-from psycopg2.errors import DuplicateDatabase 
+from psycopg2 import OperationalError
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
-from server.BaseServer import BaseServer 
-from database.PostgreSQLDatabase import PostgreSQLDatabase 
+from server.BaseServer import BaseServer
+from database.PostgreSQLDatabase import PostgreSQLDatabase
 
 logging.basicConfig(
-    filename='PostgreSQLServer.log',
+    filename='PostgreSQLDatabase.log',
     level=logging.INFO,
-    format='|' \
-    '%(asctime)-18s|' \
-    '%(levelname)-4s|' \
-    '%(module)-18s|' \
-    '%(filename)-18s:%(lineno)-4s|' \
-    '%(funcName)-18s|' \
+    format='|'
+    '%(asctime)-18s|'
+    '%(levelname)-4s|'
+    '%(module)-18s|'
+    '%(filename)-18s:%(lineno)-4s|'
+    '%(funcName)-18s|'
     '%(message)-32s|',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
@@ -27,42 +26,42 @@ class PostgreSQLServer(BaseServer):
     '''
     PostgreSQL server object.
 
-    Parameters 
+    Parameters
     ----------
-    user:       string 
+    user:       string
                 Database server login name.
 
-    password:   string 
+    password:   string
                 Database server login password.
 
-    host:       string 
+    host:       string
                 Host server address.
 
-    port:       string 
+    port:       string
                 Port host server is serving through.
 
-    dbname:     string 
-                Name of the database to connect to. 
+    dbname:     string
+                Name of the database to connect to.
                 Defaults to postgres, the system database.
 
     cnxn:       Database connection object
                 Connection to the PostgreSQL database.
     '''
     def __init__(
-        self, 
-        user=os.getenv('USER'), 
-        password=None, 
-        host='localhost', 
-        port='5432', 
+        self,
+        user=os.getenv('USER'),
+        password=None,
+        host='localhost',
+        port='5432',
         dbname='postgres'
     ):
         logging.info('Creating PostgreSQL Server object')
 
-        self.user = user 
-        self.password = password 
-        self.host = host 
-        self.port = port 
-        self.dbname = dbname 
+        self.user = user
+        self.password = password
+        self.host = host
+        self.port = port
+        self.dbname = dbname
         self.cnxn = self.__establish_connection()
         self.database = PostgreSQLDatabase(self.cnxn, dbname)
 
@@ -77,13 +76,13 @@ class PostgreSQLServer(BaseServer):
         '''
         Retrieve connection to the PostgreSQL database server.
 
-        Parameters 
+        Parameters
         ----------
-        None 
+        None
 
         Returns
         -------
-        cnxn:       connection object 
+        cnxn:       connection object
                     Open connection to the PostgreSQL database server.
         '''
         try:
@@ -106,12 +105,12 @@ class PostgreSQLServer(BaseServer):
                 host=self.host,
                 port=self.port,
                 database='postgres'
-            ) 
+            )
 
             logging.info('Connection to system database established, creating database')
-            
-            # attempt to create database 
-            database = PostgreSQLDatabase(base_cnxn, self.dbname)
+
+            # attempt to create database
+            PostgreSQLDatabase(base_cnxn, self.dbname)
             base_cnxn.close()
 
             # second/final attempt to connect to database (now that db is there)
@@ -124,5 +123,5 @@ class PostgreSQLServer(BaseServer):
             )
 
         cnxn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-    
-        return cnxn 
+
+        return cnxn

@@ -1,3 +1,6 @@
+import inspect
+
+
 class BaseServer:
     '''
     Base server class for all database server types.
@@ -7,16 +10,16 @@ class BaseServer:
     def _get_param_names(cls):
         '''
         Get parameter names for the server
-        
+
         Parameters
         ----------
-        None 
+        None
         Returns
         -------
-        params:     list 
+        params:     list
                     List of the class parameters.
         '''
-        # fetch the constructor 
+        # fetch the constructor
         init = getattr(cls.__init__, 'Server Class', cls.__init__)
 
         if init is object.__init__:
@@ -25,8 +28,8 @@ class BaseServer:
         else:
             # inspect constructor
             sig = inspect.signature(init)
-            parameters = [p for p in sig.parameters.values() 
-                          if p.name != 'self' and 
+            parameters = [p for p in sig.parameters.values()
+                          if p.name != 'self' and
                           p.kind != p.VAR_KEYWORD]
 
             for p in parameters:
@@ -36,7 +39,7 @@ class BaseServer:
                         'parameters in the signature of their __init__. '
                         '{class_} with constructor {signature} does not follow '
                         'this convention.'.format(
-                            class_=cls, 
+                            class_=cls,
                             signature=sig
                         )
                     )
@@ -72,13 +75,13 @@ class BaseServer:
         '''
         Retrieve connection to the SQLite3 database server.
 
-        Parameters 
+        Parameters
         ----------
-        None 
+        None
 
         Returns
         -------
-        cnxn:       connection object 
+        cnxn:       connection object
                     Open connection to the SQLite3 database server.
 
 
@@ -94,26 +97,26 @@ class BaseServer:
 
         Parameters
         ----------
-        None 
+        None
 
         Returns
         -------
-        cnxn:       connection object 
+        cnxn:       connection object
                     Open connection to the database server.
         '''
-        return self.cnxn 
+        return self.cnxn
 
     def get_database(self):
         '''
         Retrieve the database object.
 
-        Parameters 
+        Parameters
         ----------
-        None 
+        None
 
         Returns
         -------
-        database:       Database object 
+        database:       Database object
                         The primary database associated with this server.
         '''
-        return self.database 
+        return self.database

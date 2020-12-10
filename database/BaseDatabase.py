@@ -1,17 +1,19 @@
-import logging 
+import inspect
+import logging
 
 logging.basicConfig(
     filename='BaseDatabase.log',
     level=logging.INFO,
-    format='|' \
-    '%(asctime)-18s|' \
-    '%(levelname)-4s|' \
-    '%(module)-18s|' \
-    '%(filename)-18s:%(lineno)-4s|' \
-    '%(funcName)-18s|' \
+    format='|'
+    '%(asctime)-18s|'
+    '%(levelname)-4s|'
+    '%(module)-18s|'
+    '%(filename)-18s:%(lineno)-4s|'
+    '%(funcName)-18s|'
     '%(message)-32s|',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
+
 
 class BaseDatabase:
     '''
@@ -22,16 +24,16 @@ class BaseDatabase:
     def _get_param_names(cls):
         '''
         Get parameter names for the database
-        
+
         Parameters
         ----------
-        None 
+        None
         Returns
         -------
-        params:     list 
+        params:     list
                     List of the class parameters.
         '''
-        # fetch the constructor 
+        # fetch the constructor
         init = getattr(cls.__init__, 'Database Class', cls.__init__)
 
         if init is object.__init__:
@@ -40,8 +42,8 @@ class BaseDatabase:
         else:
             # inspect constructor
             sig = inspect.signature(init)
-            parameters = [p for p in sig.parameters.values() 
-                          if p.name != 'self' and 
+            parameters = [p for p in sig.parameters.values()
+                          if p.name != 'self' and
                           p.kind != p.VAR_KEYWORD]
 
             for p in parameters:
@@ -51,7 +53,7 @@ class BaseDatabase:
                         'parameters in the signature of their __init__. '
                         '{class_} with constructor {signature} does not follow '
                         'this convention.'.format(
-                            class_=cls, 
+                            class_=cls,
                             signature=sig
                         )
                     )
@@ -81,7 +83,7 @@ class BaseDatabase:
         for key in self._get_param_names():
             params[key] = getattr(self, key)
 
-        return params   
+        return params
 
     def get_name(self):
         '''
@@ -89,23 +91,23 @@ class BaseDatabase:
 
         Parameters
         ----------
-        None 
+        None
 
-        Returns 
+        Returns
         -------
-        dbname:     str 
+        dbname:     str
                     Name of the database.
         '''
-        return self.dbname 
+        return self.dbname
 
     def check_migration(self, migration):
         '''
-        Checks if a given migration script name has already been executed 
-        against this database. 
+        Checks if a given migration script name has already been executed
+        against this database.
 
         Parameters
         ----------
-        migration:      str 
+        migration:      str
                         Path to the migration file being investigated.
 
         Returns
@@ -120,7 +122,7 @@ class BaseDatabase:
 
         All databases should overload this function with their own instance.
         '''
-        pass  
+        pass
 
     def run_migration(self, migration):
         '''
@@ -128,25 +130,21 @@ class BaseDatabase:
 
         Parameters
         ----------
-        migration:      str 
+        migration:      str
                         Path to the migration script.
 
         Returns
         -------
-        None 
+        None
         '''
-        # read the migration script 
+        # read the migration script
         f = open(migration, 'r')
         sql = f.read()
 
-        try:
-            # run the migration script 
-            cursor = self.cnxn.cursor() 
-            cursor.execute(sql)
-            self.cnxn.commit()
-        except:
-            logging.error('Problem deploying {m}'.format(m=migration))
-            raise
+        # run the migration script
+        cursor = self.cnxn.cursor()
+        cursor.execute(sql)
+        self.cnxn.commit()
 
         # update the _MigrationsRun table
         self.update_migrations_run(migration)
@@ -157,15 +155,15 @@ class BaseDatabase:
 
         Parameters
         ----------
-        migration:      str 
+        migration:      str
                         Pathname for the migration script.
 
-        Returns 
+        Returns
         -------
-        None 
+        None
 
-        Notes 
+        Notes
         -----
         All databases should overload this function with their own instance.
         '''
-        pass 
+        pass

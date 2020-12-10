@@ -1,13 +1,13 @@
-from setuptools import setup, find_packages 
+from setuptools import setup, find_packages
 
-# dependencies 
+# dependencies
 with open('requirements.txt') as f:
-    requirements = f.read() 
+    requirements = f.read()
 
 requirements = requirements.split('\n')
 requirements = [r.strip() for r in requirements]
 
-# description/readme 
+# description/readme
 with open('README.md') as f:
     description = f.read()
 
