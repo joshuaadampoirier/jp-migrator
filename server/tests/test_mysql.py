@@ -11,12 +11,12 @@ from server.MySQLServer import MySQLServer
 logging.basicConfig(
     filename='TestServer_MySQLServer.log',
     level=logging.INFO,
-    format='|' \
-    '%(asctime)-18s|' \
-    '%(levelname)-4s|' \
-    '%(module)-18s|' \
-    '%(filename)-18s:%(lineno)-4s|' \
-    '%(funcName)-18s|' \
+    format='|'
+    '%(asctime)-18s|'
+    '%(levelname)-4s|'
+    '%(module)-18s|'
+    '%(filename)-18s:%(lineno)-4s|'
+    '%(funcName)-18s|'
     '%(message)-32s|',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
