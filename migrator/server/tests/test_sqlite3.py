@@ -2,7 +2,7 @@ import logging
 import unittest 
 from sqlite3 import Connection
 
-from server.SQLite3Server import SQLite3Server 
+from migrator.server.SQLite3Server import SQLite3Server 
 
 
 logging.basicConfig(

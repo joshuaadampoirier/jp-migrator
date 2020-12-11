@@ -2,14 +2,14 @@ import logging
 import pkg_resources 
 import unittest 
 
-from pymysql import OperationalError
+from psycopg2 import OperationalError 
 
-from database.MySQLDatabase import MySQLDatabase 
-from server.MySQLServer import MySQLServer
+from migrator.database.PostgreSQLDatabase import PostgreSQLDatabase 
+from migrator.server.PostgreSQLServer import PostgreSQLServer
 
 
 logging.basicConfig(
-    filename='TestDatabase_MySQLDatabase.log',
+    filename='TestServer_PostgreSQL.log',
     level=logging.INFO,
     format='|'
     '%(asctime)-18s|'
@@ -22,32 +22,31 @@ logging.basicConfig(
 )
 
 
-class MySQLDatabaseTestCase(unittest.TestCase):
+class PostgreSQLDatabaseTestCase(unittest.TestCase):
     '''
-    Test class for MySQL database class.
+    Test class for PostgreSQL database class.
     '''
 
     def __build_server(self):
         '''
-        Build MySQL server object to run unit tests against.
+        Build PostgreSQL server object to run unit tests against.
 
         Args:
             None 
 
         Returns:
-            server:     MySQLServer object 
-                        MySQLServer object representing a running MySQL server
+            server:     PostgreSQLServer object 
+                        PostgreSQLServer object representing a running 
+                        PostgreSQL server
         '''
         server = None 
 
         try:
             # create server object 
-            server = MySQLServer(
-                server='localhost',
-                port=3306,
-                user='root',
-                password='badpassword123',
-                dbname='TestDatabaseName'
+            server = PostgreSQLServer(
+                host='localhost',
+                port='5432',
+                dbname='testserver2'
             )
 
         except OperationalError:
@@ -71,7 +70,7 @@ class MySQLDatabaseTestCase(unittest.TestCase):
         # build server 
         server = self.__build_server() 
         if server is None:
-            self.skipTest('Verify MySQL server is running')
+            self.skipTest('Verify PostgreSQL server is running')
 
         # load SQL query 
         filepath = pkg_resources.resource_filename(__name__, path)
@@ -85,11 +84,11 @@ class MySQLDatabaseTestCase(unittest.TestCase):
         cursor.execute(sql)
         result = cursor.fetchone()[0]
 
-        return result        
+        return result 
 
     def test_database_type(self):
         '''
-        Test to ensure creating a MySQL database object generates an object 
+        Test to ensure creating a PostgreSQL database object generates an object 
         of the expected type.
         '''
         # build server 
@@ -98,39 +97,39 @@ class MySQLDatabaseTestCase(unittest.TestCase):
             self.skipTest('Verify MySQL server is running')
 
         database = server.get_database()
-        self.assertIsInstance(database, MySQLDatabase)
+        self.assertIsInstance(database, PostgreSQLDatabase)
 
     def test_migrations_run(self):
         '''
         Test to ensure the _MigrationsRun table was created in the database.
         '''
         # build SQL query and execute 
-        path = 'mysql/test_migrations_run.sql'
+        path = 'postgresql/test_migrations_run.sql'
         result = self.__get_result(path)
 
         # run the test 
-        self.assertEqual(result, '_MigrationsRun')
+        self.assertEqual(result, '_migrationsrun')
 
     def test_insert_migrations_run(self):
         '''
         Test to ensure the _Insert_MigrationsRun procedure gets created in 
-        SQL Server databases during server/database connection.
+        PostgreSQL databases during server/database connection.
         '''
         # build SQL query and execute 
-        path = 'mysql/test_insert_migrations_run.sql'
+        path = 'postgresql/test_insert_migrations_run.sql'
         result = self.__get_result(path)
 
         # run the test 
-        self.assertEqual(result, '_Insert_MigrationsRun')
+        self.assertEqual(result, '_insert_migrationsrun')
 
     def test_check_migration(self):
         '''
-        Test to ensure the _Check_Migration function gets created in MySQL  
+        Test to ensure _Check_Migration function gets created in PostgreSQL 
         databases during server/database connection.
-        ''' 
+        '''
         # build SQL query and execute 
-        path = 'mysql/test_check_migration.sql'
-        result = self.__get_result(path) 
+        path = 'postgresql/test_check_migration.sql'
+        result = self.__get_result(path)
 
         # run the test 
-        self.assertEqual(result, '_Check_Migration')
+        self.assertEqual(result, '_check_migration')

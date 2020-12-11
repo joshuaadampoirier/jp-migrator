@@ -1,14 +1,15 @@
 import logging
-import pymssql
+import os
+import psycopg2
 
-from pymssql import OperationalError
+from psycopg2 import OperationalError
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
-from server.BaseServer import BaseServer
-from database.SQLServerDatabase import SQLServerDatabase
-
+from migrator.server.BaseServer import BaseServer
+from migrator.database.PostgreSQLDatabase import PostgreSQLDatabase
 
 logging.basicConfig(
-    filename='SQLServerDatabase.log',
+    filename='PostgreSQLDatabase.log',
     level=logging.INFO,
     format='|'
     '%(asctime)-18s|'
@@ -21,49 +22,48 @@ logging.basicConfig(
 )
 
 
-class SQLServer(BaseServer):
+class PostgreSQLServer(BaseServer):
     '''
-    SQLServer server object.
+    PostgreSQL server object.
 
     Parameters
     ----------
-    server:     string
-                Server address to connect to.
-
-    port:       int
-                Port to connect to server through
-
     user:       string
                 Database server login name.
 
     password:   string
                 Database server login password.
 
+    host:       string
+                Host server address.
+
+    port:       string
+                Port host server is serving through.
+
     dbname:     string
                 Name of the database to connect to.
-                Defaults to master, the system database.
+                Defaults to postgres, the system database.
 
     cnxn:       Database connection object
-                Connection to the SQL Server database.
+                Connection to the PostgreSQL database.
     '''
     def __init__(
         self,
-        server,
-        port,
-        user,
-        password,
-        dbname='master'
+        user=os.getenv('USER'),
+        password=None,
+        host='localhost',
+        port='5432',
+        dbname='postgres'
     ):
-        logging.info('Creating SQL Server server object')
+        logging.info('Creating PostgreSQL Server object')
 
-        self.server = server
-        self.port = port
         self.user = user
         self.password = password
+        self.host = host
+        self.port = port
         self.dbname = dbname
-
         self.cnxn = self.__establish_connection()
-        self.database = SQLServerDatabase(self.cnxn, dbname)
+        self.database = PostgreSQLDatabase(self.cnxn, dbname)
 
     def __del__(self):
         try:
@@ -74,7 +74,7 @@ class SQLServer(BaseServer):
 
     def __establish_connection(self):
         '''
-        Retrieve connection to the SQL Server database server.
+        Retrieve connection to the PostgreSQL database server.
 
         Parameters
         ----------
@@ -83,43 +83,45 @@ class SQLServer(BaseServer):
         Returns
         -------
         cnxn:       connection object
-                    Open connection to the SQL Server database server.
+                    Open connection to the PostgreSQL database server.
         '''
-        logging.info('Establishing server connection')
-
         try:
-            cnxn = pymssql.connect(
-                server=self.server,
-                port=self.port,
+            logging.info('Connecting to database server')
+
+            cnxn = psycopg2.connect(
                 user=self.user,
                 password=self.password,
+                host=self.host,
+                port=self.port,
                 database=self.dbname
             )
-
         except OperationalError:
             logging.warning('Unable to connect, trying system database ...')
 
-            base_cnxn = pymssql.connect(
-                server=self.server,
-                port=self.port,
+            # attempt to create database by connecting to system database
+            base_cnxn = psycopg2.connect(
                 user=self.user,
                 password=self.password,
-                database='master'
+                host=self.host,
+                port=self.port,
+                database='postgres'
             )
 
             logging.info('Connection to system database established, creating database')
 
             # attempt to create database
-            SQLServerDatabase(base_cnxn, self.dbname)
+            PostgreSQLDatabase(base_cnxn, self.dbname)
             base_cnxn.close()
 
             # second/final attempt to connect to database (now that db is there)
-            cnxn = pymssql.connect(
-                server=self.server,
-                port=self.port,
+            cnxn = psycopg2.connect(
                 user=self.user,
                 password=self.password,
+                host=self.host,
+                port=self.port,
                 database=self.dbname
             )
+
+        cnxn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 
         return cnxn

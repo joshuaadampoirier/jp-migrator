@@ -1,8 +1,8 @@
 import logging
 import pymysql
 
-from server.BaseServer import BaseServer
-from database.MySQLDatabase import MySQLDatabase
+from migrator.server.BaseServer import BaseServer
+from migrator.database.MySQLDatabase import MySQLDatabase
 
 
 logging.basicConfig(

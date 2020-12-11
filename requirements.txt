@@ -4,9 +4,8 @@ cryptography==2.9
 dnspython==1.16.0
 entrypoints==0.3
 flake8==3.7.9
-jp-migrator==0.1a0
-jpmigrator==0.1a0
 mccabe==0.6.1
+pathlib==1.0.1
 protobuf==3.6.1
 psycopg2==2.8.4
 pycodestyle==2.5.0

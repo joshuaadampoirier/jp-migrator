@@ -11,7 +11,7 @@ fi
 
 IMAGE_TAG=${CONTAINER_REPOSITORY}:${CURRENT_HASH}
 
-BUILD='docker build -t "$IMAGE_TAG"'
+BUILD='docker build -t "$IMAGE_TAG" .'
 
 ################################################################################
 # ACTIONS
@@ -41,7 +41,8 @@ function test {
 
 function build {
     test
-    eval "$BUILD image."
+    echo "Building $IMAGE_TAG"
+    eval "$BUILD"
 }
 
 ################################################################################

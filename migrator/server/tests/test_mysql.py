@@ -5,7 +5,7 @@ import unittest
 from pymysql.connections import Connection
 from pymysql import OperationalError
 
-from server.MySQLServer import MySQLServer 
+from migrator.server.MySQLServer import MySQLServer 
 
 
 logging.basicConfig(

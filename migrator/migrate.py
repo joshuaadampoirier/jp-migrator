@@ -4,8 +4,8 @@ import os
 from pathlib import Path
 import yaml
 
-from server.SQLite3Server import SQLite3Server
-from server.PostgreSQLServer import PostgreSQLServer
+from migrator.server.SQLite3Server import SQLite3Server
+from migrator.server.PostgreSQLServer import PostgreSQLServer
 
 logging.basicConfig(
     filename='Migrate.log',
@@ -36,6 +36,18 @@ def _parse_args():
                 Populated with values
     '''
     parser = argparse.ArgumentParser(description='Parameters for jp-migrator')
+
+    parser.add_argument(
+        '--deployment-repo',
+        type=str,
+        help='Location of the git repo to be deployed'
+    )
+
+    parser.add_argument(
+        '--deployment-branch',
+        type=str,
+        help='Branch of the git repo to be deployed'
+    )
 
     # optional host argument
     parser.add_argument(
@@ -89,7 +101,7 @@ def _read_instructions():
     throw an error.
     '''
     try:
-        stream = open('migrate.yaml', 'r')
+        stream = open('deployment/migrate.yaml', 'r')
         migrate = yaml.safe_load(stream)
     except FileNotFoundError:
         logging.error('Database project must have migrate.yaml to be deployed.')
@@ -272,9 +284,14 @@ def main():
     '''
     args = _parse_args()
 
+    # clone and checkout given database deployment
+    os.system(f'git clone {args.deployment_repo} deployment')
+    os.system('cd deployment')
+    os.system(f'git checkout {args.deployment_branch}')
+
     # read database migration instructions
     migrate = _read_instructions()
-
+    print(migrate['migrations'])
     # connect to database server
     server = _get_server(args, migrate)
 

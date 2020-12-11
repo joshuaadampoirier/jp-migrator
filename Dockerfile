@@ -1,16 +1,30 @@
-FROM ubuntu:16.04
+FROM python:3.6-slim
 
 WORKDIR /jp-migrator
+ENV PYTHONPATH /jp-migrator
 
-RUN apt-get update -y && \
-    apt-get install -y python3-pip python3-dev
+RUN apt-get update && \
+    apt-get install -y \
+    build-essential \
+    git \
+    libpq-dev \
+    python-pip \
+    python-setuptools \
+    tdsodbc \
+    unixodbc \
+    unixodbc-dev
+    
+
+RUN echo '[ODBC]' >> /etc/odbcinst.ini && \
+    echo 'Trace = no' >> /etc/odbcinst.ini && \
+    echo '[FreeTDS]' >> /etc/odbcinst.ini && \
+    echo 'Description = FreeTDS driver' >> /etc/odbcinst.ini && \
+    echo 'Driver = /usr/lib/x86_64-linux-gnu/odbc/libtdsodbc.so' >> /etc/odbcinst.ini && \
+    echo 'UsageCount = 1' >> /etc/odbcinst.ini
 
 COPY ./requirements.txt /jp-migrator/requirements.txt
 
-RUN pip install --upgrade pip
+RUN pip install --upgrade pip && \
     pip install -r requirements.txt
-
-COPY setup.py /jp-migrator/setup.py
-COPY .git /allocation/.git
 
 COPY . /jp-migrator

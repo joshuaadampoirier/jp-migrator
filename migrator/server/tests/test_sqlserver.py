@@ -3,7 +3,7 @@ import unittest
 
 from pymssql import Connection, OperationalError
 
-from server.SQLServer import SQLServer 
+from migrator.server.SQLServer import SQLServer 
 
 
 logging.basicConfig(

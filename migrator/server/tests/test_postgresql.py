@@ -4,7 +4,7 @@ import unittest
 from psycopg2 import OperationalError 
 from psycopg2.extensions import connection 
 
-from server.PostgreSQLServer import PostgreSQLServer 
+from migrator.server.PostgreSQLServer import PostgreSQLServer 
 
 
 logging.basicConfig(

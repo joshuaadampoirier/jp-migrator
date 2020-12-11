@@ -3,7 +3,7 @@ import pkg_resources
 
 from sqlite3 import OperationalError
 
-from database.BaseDatabase import BaseDatabase
+from migrator.database.BaseDatabase import BaseDatabase
 
 logging.basicConfig(
     filename='SQLite3Database.log',
