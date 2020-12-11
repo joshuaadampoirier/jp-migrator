@@ -134,7 +134,7 @@ def _get_files(migrate, folder):
     if migrate['migrations'][folder]['recursive']:
         logging.info('Recursively locating {fo} migrations.'.format(fo=folder))
 
-        pathlist = Path(folder).glob('**/*.sql')
+        pathlist = Path('deployment/' + folder).glob('**/*.sql')
         for path in pathlist:
             files.append(str(path))
 
@@ -142,8 +142,7 @@ def _get_files(migrate, folder):
     else:
         logging.info('Locating {fo} migrations'.format(fo=folder))
 
-        directory = os.fsencode(folder)
-        for f in os.listdir(directory):
+        for f in os.listdir('deployment/' + folder):
             filename = os.fsdecode(f)
 
             if filename.endswith('.sql'):
@@ -179,8 +178,8 @@ def _order_files(migrate, folder, files):
 
     # loop through the files to be ordered
     for f in migrate['migrations'][folder]['order']:
-        if folder + '/' + f in files:
-            files.insert(0, files.pop(files.index(folder + '/' + f)))
+        if 'deployment/' + folder + '/' + f in files:
+            files.insert(0, files.pop(files.index('deployment/' + folder + '/' + f)))
 
 
 def _remove_previously_run(server, migrate, files):
@@ -285,13 +284,14 @@ def main():
     args = _parse_args()
 
     # clone and checkout given database deployment
+    os.system('cd ..')
     os.system(f'git clone {args.deployment_repo} deployment')
     os.system('cd deployment')
-    os.system(f'git checkout {args.deployment_branch}')
+    os.system(f'git checkout -f {args.deployment_branch}')
 
     # read database migration instructions
     migrate = _read_instructions()
-    print(migrate['migrations'])
+
     # connect to database server
     server = _get_server(args, migrate)
 
