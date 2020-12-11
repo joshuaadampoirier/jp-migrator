@@ -288,6 +288,9 @@ def main():
     os.system(f'git clone {args.deployment_repo} deployment')
     os.system('cd deployment')
     os.system(f'git checkout -f {args.deployment_branch}')
+    os.system('git pull')
+    os.system('cd ..')
+    os.system('cd jp-migrator')
 
     # read database migration instructions
     migrate = _read_instructions()
