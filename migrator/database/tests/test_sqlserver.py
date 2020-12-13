@@ -9,7 +9,7 @@ from migrator.server.SQLServer import SQLServer
 
 
 logging.basicConfig(
-    filename='TestServer_SQLServer.log',
+    filename='TestDatabase_SQLServer.log',
     level=logging.INFO,
     format='|'
     '%(asctime)-18s|'

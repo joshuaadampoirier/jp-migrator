@@ -178,8 +178,8 @@ def _order_files(migrate, folder, files):
 
     # loop through the files to be ordered
     for f in migrate['migrations'][folder]['order']:
-        if 'deployment/' + folder + '/' + f in files:
-            files.insert(0, files.pop(files.index('deployment/' + folder + '/' + f)))
+        if '/deployment/' + folder + '/' + f in files:
+            files.insert(0, files.pop(files.index('/deployment/' + folder + '/' + f)))
 
 
 def _remove_previously_run(server, migrate, files):

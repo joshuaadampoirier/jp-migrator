@@ -9,7 +9,7 @@ from migrator.server.PostgreSQLServer import PostgreSQLServer
 
 
 logging.basicConfig(
-    filename='TestServer_PostgreSQL.log',
+    filename='TestDatabase_PostgreSQL.log',
     level=logging.INFO,
     format='|'
     '%(asctime)-18s|'
