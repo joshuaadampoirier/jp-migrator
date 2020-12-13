@@ -1,10 +1,12 @@
 import logging
 import pkg_resources
 
-from database.BaseDatabase import BaseDatabase
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+
+from migrator.database.BaseDatabase import BaseDatabase
 
 logging.basicConfig(
-    filename='SQLServerDatabase.log',
+    filename='PostgreSQLDatabase.log',
     level=logging.INFO,
     format='|'
     '%(asctime)-18s|'
@@ -17,9 +19,9 @@ logging.basicConfig(
 )
 
 
-class SQLServerDatabase(BaseDatabase):
+class PostgreSQLDatabase(BaseDatabase):
     '''
-    SQL Server database class.
+    PostgreSQL database class.
 
     Parameters
     ----------
@@ -30,10 +32,9 @@ class SQLServerDatabase(BaseDatabase):
                 Name of the database to be created.
     '''
     def __init__(self, cnxn, dbname):
-        logging.info('Creating SQL Server database object')
+        logging.info('Creating PostgreSQL database object')
         self.cnxn = cnxn
         self.dbname = dbname
-
         self.__create_database()
         self.__migrations_run()
         self.__check_migration()
@@ -53,27 +54,19 @@ class SQLServerDatabase(BaseDatabase):
         '''
         # localize connection object
         cnxn = self.cnxn
+        cnxn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 
         # build query and open cursor
-        logging.info('Creating SQL Server database if does not exist')
-        sql = f'''
-            IF NOT EXISTS
-            (
-                SELECT      1
-                FROM        SYS.DATABASES
-                WHERE       NAME = '{self.dbname}'
-            )
-                CREATE DATABASE {self.dbname}
-        '''
+        logging.info('Creating PostgreSQL database if does not exist')
+        sql = 'CREATE DATABASE IF NOT EXISTS {db}'.format(db=self.dbname)
+        cursor = cnxn.cursor()
 
         # create the database
-        cnxn.autocommit(True)
-        cursor = cnxn.cursor()
         cursor.execute(sql)
+        cnxn.commit()
 
         # cleanup
         cursor.close()
-        cnxn.autocommit(False)
 
     def __migrations_run(self):
         '''
@@ -88,10 +81,10 @@ class SQLServerDatabase(BaseDatabase):
         -------
         None
         '''
-        logging.info('Create _MigrationsRun table')
+        logging.info('Create _migrationsrun table')
 
         # open sql file
-        path = 'sqlserver/_MigrationsRun.sql'
+        path = 'postgresql/_MigrationsRun.sql'
         filepath = pkg_resources.resource_filename(__name__, path)
         f = open(filepath, 'r')
 
@@ -120,10 +113,10 @@ class SQLServerDatabase(BaseDatabase):
         -------
         None
         '''
-        logging.info('Create _CheckMigration function')
+        logging.info('Create _checkmigration function')
 
         # open sql file
-        path = 'sqlserver/_CheckMigration.sql'
+        path = 'postgresql/_CheckMigration.sql'
         filepath = pkg_resources.resource_filename(__name__, path)
         f = open(filepath, 'r')
 
@@ -151,10 +144,10 @@ class SQLServerDatabase(BaseDatabase):
         -------
         None
         '''
-        logging.info('Create _Insert_MigrationsRun stored procedure')
+        logging.info('Create _insert_migrationsrun stored procedure')
 
         # open sql file
-        path = 'sqlserver/_InsertMigrationsRun.sql'
+        path = 'postgresql/_InsertMigrationsRun.sql'
         filepath = pkg_resources.resource_filename(__name__, path)
         f = open(filepath, 'r')
 
@@ -188,7 +181,7 @@ class SQLServerDatabase(BaseDatabase):
         cursor = self.cnxn.cursor()
 
         # build sql query to determine if migration has been run
-        sql = f"SELECT dbo._Check_Migration('{migration}')"
+        sql = "SELECT public._check_migration('{m}')".format(m=migration)
 
         # run the sql query
         cursor.execute(sql)
@@ -216,7 +209,7 @@ class SQLServerDatabase(BaseDatabase):
         cursor = self.cnxn.cursor()
 
         # build sql query to update _MigrationsRun
-        sql = f"EXEC dbo._Insert_MigrationsRun('{migration}')"
+        sql = "CALL public._insert_migrationsrun('{m}')".format(m=migration)
 
         # run the sql query
         cursor.execute(sql)

@@ -2,56 +2,56 @@ import logging
 import pkg_resources 
 import unittest 
 
-from pymysql import OperationalError
+from pymssql import OperationalError 
 
-from database.MySQLDatabase import MySQLDatabase 
-from server.MySQLServer import MySQLServer
+from migrator.database.SQLServerDatabase import SQLServerDatabase 
+from migrator.server.SQLServer import SQLServer
 
 
 logging.basicConfig(
-    filename='TestDatabase_MySQLDatabase.log',
+    filename='TestDatabase_SQLServer.log',
     level=logging.INFO,
-    format='|' \
-    '%(asctime)-18s|' \
-    '%(levelname)-4s|' \
-    '%(module)-18s|' \
-    '%(filename)-18s:%(lineno)-4s|' \
-    '%(funcName)-18s|' \
+    format='|'
+    '%(asctime)-18s|'
+    '%(levelname)-4s|'
+    '%(module)-18s|'
+    '%(filename)-18s:%(lineno)-4s|'
+    '%(funcName)-18s|'
     '%(message)-32s|',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 
 
-class MySQLDatabaseTestCase(unittest.TestCase):
+class SQLServerDatabaseTestCase(unittest.TestCase):
     '''
-    Test class for MySQL database class.
+    Test class for SQL Server database class.
     '''
 
     def __build_server(self):
         '''
-        Build MySQL server object to run unit tests against.
+        Build SQL Server object to run unit tests against.
 
         Args:
             None 
 
         Returns:
-            server:     MySQLServer object 
-                        MySQLServer object representing a running MySQL server
+            server:     SQL Server object 
+                        SQL Server object representing a running SQL Server
         '''
         server = None 
 
         try:
             # create server object 
-            server = MySQLServer(
+            server = SQLServer(
                 server='localhost',
-                port=3306,
-                user='root',
-                password='badpassword123',
+                port='1401',
+                user='SA',
+                password='BadPassword123',
                 dbname='TestDatabaseName'
             )
 
         except OperationalError:
-            logging.warning('Verify MySQL server is running.')
+            logging.warning('Verify SQL Server is running.')
 
         finally:
             return server 
@@ -71,7 +71,7 @@ class MySQLDatabaseTestCase(unittest.TestCase):
         # build server 
         server = self.__build_server() 
         if server is None:
-            self.skipTest('Verify MySQL server is running')
+            self.skipTest('Verify SQL Server is running')
 
         # load SQL query 
         filepath = pkg_resources.resource_filename(__name__, path)
@@ -85,11 +85,11 @@ class MySQLDatabaseTestCase(unittest.TestCase):
         cursor.execute(sql)
         result = cursor.fetchone()[0]
 
-        return result        
+        return result 
 
     def test_database_type(self):
         '''
-        Test to ensure creating a MySQL database object generates an object 
+        Test to ensure creating a SQL Server database object generates an object 
         of the expected type.
         '''
         # build server 
@@ -98,14 +98,14 @@ class MySQLDatabaseTestCase(unittest.TestCase):
             self.skipTest('Verify MySQL server is running')
 
         database = server.get_database()
-        self.assertIsInstance(database, MySQLDatabase)
+        self.assertIsInstance(database, SQLServerDatabase)
 
     def test_migrations_run(self):
         '''
         Test to ensure the _MigrationsRun table was created in the database.
         '''
         # build SQL query and execute 
-        path = 'mysql/test_migrations_run.sql'
+        path = 'sqlserver/test_migrations_run.sql'
         result = self.__get_result(path)
 
         # run the test 
@@ -117,7 +117,7 @@ class MySQLDatabaseTestCase(unittest.TestCase):
         SQL Server databases during server/database connection.
         '''
         # build SQL query and execute 
-        path = 'mysql/test_insert_migrations_run.sql'
+        path = 'sqlserver/test_insert_migrations_run.sql'
         result = self.__get_result(path)
 
         # run the test 
@@ -125,12 +125,12 @@ class MySQLDatabaseTestCase(unittest.TestCase):
 
     def test_check_migration(self):
         '''
-        Test to ensure the _Check_Migration function gets created in MySQL  
+        Test to ensure the _Check_Migration function gets created in SQL Server 
         databases during server/database connection.
         ''' 
         # build SQL query and execute 
-        path = 'mysql/test_check_migration.sql'
-        result = self.__get_result(path) 
+        path = 'sqlserver/test_check_migration.sql'
+        result = self.__get_result(path)
 
         # run the test 
         self.assertEqual(result, '_Check_Migration')

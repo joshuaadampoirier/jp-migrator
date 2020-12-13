@@ -13,7 +13,7 @@ with open('README.md') as f:
 
 setup(
     name='jpmigrator',
-    version='0.1 alpha',
+    version='0.1',
     author='Joshua Poirier',
     packages=find_packages(),
     install_requires=requirements,

@@ -1,8 +1,8 @@
 import logging
 import sqlite3
 
-from server.BaseServer import BaseServer
-from database.SQLite3Database import SQLite3Database
+from migrator.server.BaseServer import BaseServer
+from migrator.database.SQLite3Database import SQLite3Database
 
 logging.basicConfig(
     filename='SQLite3Database.log',

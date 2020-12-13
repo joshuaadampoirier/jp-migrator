@@ -1,7 +1,7 @@
 import logging
 import pkg_resources
 
-from database.BaseDatabase import BaseDatabase
+from migrator.database.BaseDatabase import BaseDatabase
 
 logging.basicConfig(
     filename='MySQLServerDatabase.log',

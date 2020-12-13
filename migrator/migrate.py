@@ -4,8 +4,8 @@ import os
 from pathlib import Path
 import yaml
 
-from server.SQLite3Server import SQLite3Server
-from server.PostgreSQLServer import PostgreSQLServer
+from migrator.server.SQLite3Server import SQLite3Server
+from migrator.server.PostgreSQLServer import PostgreSQLServer
 
 logging.basicConfig(
     filename='Migrate.log',
@@ -36,6 +36,18 @@ def _parse_args():
                 Populated with values
     '''
     parser = argparse.ArgumentParser(description='Parameters for jp-migrator')
+
+    parser.add_argument(
+        '--deployment-repo',
+        type=str,
+        help='Location of the git repo to be deployed'
+    )
+
+    parser.add_argument(
+        '--deployment-branch',
+        type=str,
+        help='Branch of the git repo to be deployed'
+    )
 
     # optional host argument
     parser.add_argument(
@@ -89,7 +101,7 @@ def _read_instructions():
     throw an error.
     '''
     try:
-        stream = open('migrate.yaml', 'r')
+        stream = open('/deployment/migrate.yaml', 'r')
         migrate = yaml.safe_load(stream)
     except FileNotFoundError:
         logging.error('Database project must have migrate.yaml to be deployed.')
@@ -122,7 +134,7 @@ def _get_files(migrate, folder):
     if migrate['migrations'][folder]['recursive']:
         logging.info('Recursively locating {fo} migrations.'.format(fo=folder))
 
-        pathlist = Path(folder).glob('**/*.sql')
+        pathlist = Path('/deployment/' + folder).glob('**/*.sql')
         for path in pathlist:
             files.append(str(path))
 
@@ -130,12 +142,11 @@ def _get_files(migrate, folder):
     else:
         logging.info('Locating {fo} migrations'.format(fo=folder))
 
-        directory = os.fsencode(folder)
-        for f in os.listdir(directory):
+        for f in os.listdir('/deployment/' + folder):
             filename = os.fsdecode(f)
 
             if filename.endswith('.sql'):
-                files.append(folder + '/' + filename)
+                files.append('/deployment/' + folder + '/' + filename)
 
     return files
 
@@ -167,8 +178,8 @@ def _order_files(migrate, folder, files):
 
     # loop through the files to be ordered
     for f in migrate['migrations'][folder]['order']:
-        if folder + '/' + f in files:
-            files.insert(0, files.pop(files.index(folder + '/' + f)))
+        if '/deployment/' + folder + '/' + f in files:
+            files.insert(0, files.pop(files.index('/deployment/' + folder + '/' + f)))
 
 
 def _remove_previously_run(server, migrate, files):
@@ -271,6 +282,10 @@ def main():
     None
     '''
     args = _parse_args()
+
+    # clone given database repository to deploy
+    os.system('rm -rf /deployment')
+    os.system(f'git clone -b {args.deployment_branch} --single-branch {args.deployment_repo} /deployment')
 
     # read database migration instructions
     migrate = _read_instructions()

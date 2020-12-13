@@ -1,0 +1,96 @@
+################################################################################
+# VARIABLES
+
+CONTAINER_REPOSITORY='jp-migrator'
+
+if [ `command -v git` ] && [ -d .git ]; then
+    CURRENT_HASH=$(git describe --tags --always)
+else
+    echo "Not a git repository. Unable to determine and assign hash."
+fi
+
+IMAGE_TAG=${CONTAINER_REPOSITORY}:${CURRENT_HASH}
+
+BUILD='docker build -t "$IMAGE_TAG" .'
+
+################################################################################
+# ACTIONS
+
+function clear-cache {
+    if [ "$(uname)" == "Darwin" ]; then
+        find . -type d -name __pycache__ -prune -exec rm -rf {} \;
+        find . -type d -name .pyc -prune -exec rm -rf {} \;
+        find . -type d -name .db -prune -exec rm -rf {} \;
+    elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+        find -type d -name __pycache__ -prune -exec rm -rf {} \;
+        find -type d -name .pyc -prune -exec rm -rf {} \;
+        find -type d -name .db -prune -exec rm -rf {} \;
+    fi
+}
+
+function lint {
+    clear-cache
+    flake8 .
+}
+
+function test {
+    clear-cache
+    lint
+    python -m unittest discover
+}
+
+function build {
+    test
+    echo "Building $IMAGE_TAG"
+    eval "$BUILD"
+}
+
+################################################################################
+# Cleanup help
+
+function clean-build {
+    rm -rf build/*
+}
+
+function clean-docker {
+    docker system prune -a
+}
+
+function clean-pycache {
+    rm -rf __pycache__/*
+}
+
+function clean-pyc {
+    rm -rf *.pyc
+}
+
+function clean-db {
+    rm -rf *.db
+}
+
+function clean-log {
+    rm -rf *.log
+    rm -rf *.log.*
+}
+
+function clean {
+    clear-cache
+    clean-build
+    clean-docker
+    clean-pycache
+    clean-pyc
+    clean-db
+    clean-log
+}
+
+################################################################################
+# DEFAULT INFO
+function _default {
+    echo "$(basename "$0") <task> <args>"
+    echo
+    echo "Available tasks:"
+    compgen -A function | grep -v '^-' | grep -v '^errcho' | cat -n
+}
+
+TIMEFORMAT="Task completed in %3lR"
+time ${@:-_default}

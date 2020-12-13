@@ -2,18 +2,18 @@ import logging
 import unittest 
 from sqlite3 import Connection
 
-from server.SQLite3Server import SQLite3Server 
+from migrator.server.SQLite3Server import SQLite3Server 
 
 
 logging.basicConfig(
     filename='TestServer_SQLite3.log',
     level=logging.INFO,
-    format='|' \
-    '%(asctime)-18s|' \
-    '%(levelname)-4s|' \
-    '%(module)-18s|' \
-    '%(filename)-18s:%(lineno)-4s|' \
-    '%(funcName)-18s|' \
+    format='|'
+    '%(asctime)-18s|'
+    '%(levelname)-4s|'
+    '%(module)-18s|'
+    '%(filename)-18s:%(lineno)-4s|'
+    '%(funcName)-18s|'
     '%(message)-32s|',
     datefmt='%Y-%m-%d %H:%M:%S'
 )

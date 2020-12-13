@@ -1,8 +1,8 @@
 import pkg_resources 
 import unittest 
 
-from database.SQLite3Database import SQLite3Database 
-from server.SQLite3Server import SQLite3Server
+from migrator.database.SQLite3Database import SQLite3Database 
+from migrator.server.SQLite3Server import SQLite3Server
 
 
 class SQLite3DatabaseTestCase(unittest.TestCase):
