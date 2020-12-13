@@ -101,7 +101,7 @@ def _read_instructions():
     throw an error.
     '''
     try:
-        stream = open('deployment/migrate.yaml', 'r')
+        stream = open('/deployment/migrate.yaml', 'r')
         migrate = yaml.safe_load(stream)
     except FileNotFoundError:
         logging.error('Database project must have migrate.yaml to be deployed.')
@@ -134,7 +134,7 @@ def _get_files(migrate, folder):
     if migrate['migrations'][folder]['recursive']:
         logging.info('Recursively locating {fo} migrations.'.format(fo=folder))
 
-        pathlist = Path('deployment/' + folder).glob('**/*.sql')
+        pathlist = Path('/deployment/' + folder).glob('**/*.sql')
         for path in pathlist:
             files.append(str(path))
 
@@ -142,11 +142,11 @@ def _get_files(migrate, folder):
     else:
         logging.info('Locating {fo} migrations'.format(fo=folder))
 
-        for f in os.listdir('deployment/' + folder):
+        for f in os.listdir('/deployment/' + folder):
             filename = os.fsdecode(f)
 
             if filename.endswith('.sql'):
-                files.append(folder + '/' + filename)
+                files.append('/deployment/' + folder + '/' + filename)
 
     return files
 
@@ -283,14 +283,9 @@ def main():
     '''
     args = _parse_args()
 
-    # clone and checkout given database deployment
-    os.system('cd ..')
-    os.system(f'git clone {args.deployment_repo} deployment')
-    os.system('cd deployment')
-    os.system(f'git checkout -f {args.deployment_branch}')
-    os.system('git pull')
-    os.system('cd ..')
-    os.system('cd jp-migrator')
+    # clone given database repository to deploy
+    os.system('rm -rf /deployment')
+    os.system(f'git clone -b {args.deployment_branch} --single-branch {args.deployment_repo} /deployment')
 
     # read database migration instructions
     migrate = _read_instructions()
