@@ -13,5 +13,5 @@ pycparser==2.20
 pyflakes==2.1.1
 pymssql==2.1.4
 PyMySQL==0.9.3
-PyYAML==5.3
+PyYAML==5.4
 six==1.14.0
