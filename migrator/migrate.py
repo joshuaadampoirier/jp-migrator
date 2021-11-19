@@ -22,9 +22,8 @@ logging.basicConfig(
 
 
 def _parse_args():
-    '''
-    Parses and validates command-line arguments. Generates help and usage
-    messageds.
+    """Parses and validates command-line arguments. Generates help and usage
+    messages.
 
     Parameters
     ----------
@@ -32,9 +31,9 @@ def _parse_args():
 
     Returns
     -------
-    args:       Namespace
-                Populated with values
-    '''
+    args : Namespace
+        Populated with values
+    """
     parser = argparse.ArgumentParser(description='Parameters for jp-migrator')
 
     parser.add_argument(
@@ -81,8 +80,7 @@ def _parse_args():
 
 
 def _read_instructions():
-    '''
-    Read the database migration instructions. These are contained in the
+    """Read the database migration instructions. These are contained in the
     migrate.yaml file of the database project.
 
     Parameters
@@ -91,15 +89,15 @@ def _read_instructions():
 
     Returns
     -------
-    migrate:        Dictionary
-                    Database metadata and migration instructions
+    migrate : dict
+        Database metadata and migration instructions
 
     Notes
     -----
     This function assumes that the current working directory is the root
     directory of the database project. If no migrate.yaml file is found, we
     throw an error.
-    '''
+    """
     try:
         stream = open('/deployment/migrate.yaml', 'r')
         migrate = yaml.safe_load(stream)
@@ -111,22 +109,21 @@ def _read_instructions():
 
 
 def _get_files(migrate, folder):
-    '''
-    Retrieve the list of migration files to execute.
+    """Retrieve the list of migration files to execute.
 
     Parameters
     ----------
-    migrate:        Dictionary
-                    Database migration instructions.
+    migrate : dict
+        Database migration instructions.
 
-    folder:         str
-                    Folder of migration scripts to execute.
+    folder : str
+        Folder of migration scripts to execute.
 
     Returns
     -------
-    files:          List
-                    Migration files to be executed.
-    '''
+    files : List
+        Migration files to be executed.
+    """
     # initialize list of files
     files = []
 
@@ -152,25 +149,24 @@ def _get_files(migrate, folder):
 
 
 def _order_files(migrate, folder, files):
-    '''
-    Re-order the migration files to ensure those listed by the migration
+    """Re-order the migration files to ensure those listed by the migration
     instructions are executed first.
 
     Parameters
     ----------
-    migrate:        Dictionary
-                    Database migration instructions.
+    migrate : dict
+        Database migration instructions.
 
-    folder:         str
-                    Folder of migration scripts to execute.
+    folder : str
+        Folder of migration scripts to execute.
 
-    files:          List
-                    List of migration scripts, unordered.
+    files : List
+        List of migration scripts, unordered.
 
     Returns
     -------
     None
-    '''
+    """
     logging.info('Reorder {fo} migrations per instructions.'.format(fo=folder))
 
     # reverse the list, such that we process the first item last
@@ -183,25 +179,25 @@ def _order_files(migrate, folder, files):
 
 
 def _remove_previously_run(server, migrate, files):
-    '''
+    """
     Remove migration scripts which have been previously executed.
 
     Parameters
     ----------
-    server:         BaseServer
-                    Database server object.
+    server : BaseServer
+        Database server object.
 
-    migrate:        Dictionary
-                    Database migration instructions.
+    migrate : dict
+        Database migration instructions.
 
-    files:          List
-                    List of migration scripts, ordered.
+    files : List
+        List of migration scripts, ordered.
 
     Returns
     -------
-    new_files:      List
-                    List of migration scripts which need to be executed.
-    '''
+    new_files : List
+        List of migration scripts which need to be executed.
+    """
     remove = []
 
     # loop through migration scripts
@@ -217,21 +213,20 @@ def _remove_previously_run(server, migrate, files):
 
 
 def _run_migrations(server, files):
-    '''
-    Execute the provided migration scripts.
+    """Execute the provided migration scripts.
 
     Parameters
     ----------
-    server:         BaseServer
-                    Database server object.
+    server : BaseServer
+        Database server object.
 
-    files:          List
-                    List of migration scripts to be executed.
+    files : List
+        List of migration scripts to be executed.
 
     Returns
     -------
     None
-    '''
+    """
     database = server.get_database()
 
     # loop through migrations
@@ -240,21 +235,20 @@ def _run_migrations(server, files):
 
 
 def _get_server(args, migrate):
-    '''
-    Connect to the server provided by the migration instructions.
+    """Connect to the server provided by the migration instructions.
 
     Parameters
     ----------
-    args:           namespace
-                    argparse namespace containing command-line arguments
+    args : namespace
+        argparse namespace containing command-line arguments
 
-    migrate:        Dictionary
-                    Database migration instructions.
+    migrate : dict
+        Database migration instructions.
 
     Returns
     -------
-    server:         Database Server object.
-    '''
+    server : Database Server object.
+    """
     if migrate['engine'] == 'SQLite3':
         server = SQLite3Server(migrate['dbname'])
     elif migrate['engine'] == 'PostgreSQL':
@@ -270,7 +264,7 @@ def _get_server(args, migrate):
 
 
 def main():
-    '''
+    """
     Primary orchestration of database migration.
 
     Parameters
@@ -280,7 +274,7 @@ def main():
     Returns
     -------
     None
-    '''
+    """
     args = _parse_args()
 
     # clone given database repository to deploy
