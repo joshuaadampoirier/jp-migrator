@@ -62,7 +62,7 @@ class SQLite3Database(BaseDatabase):
         f.close()
         cursor.close()
 
-    def check_migration(self, migration):
+    def check_migration(self, migration: str) -> bool:
         """Checks if a given migration script name has already been executed
         against this database.
 
@@ -105,7 +105,7 @@ class SQLite3Database(BaseDatabase):
 
         return exists
 
-    def update_migrations_run(self, migration):
+    def update_migrations_run(self, migration: str):
         """Insert the given migration into the _MigrationsRun table.
 
         Parameters

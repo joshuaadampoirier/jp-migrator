@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import yaml
 
+from migrator.server.BaseServer import BaseServer
 from migrator.server.SQLite3Server import SQLite3Server
 from migrator.server.PostgreSQLServer import PostgreSQLServer
 
@@ -21,7 +22,7 @@ logging.basicConfig(
 )
 
 
-def _parse_args():
+def _parse_args() -> argparse.Namespace:
     """Parses and validates command-line arguments. Generates help and usage
     messages.
 
@@ -31,7 +32,7 @@ def _parse_args():
 
     Returns
     -------
-    args : Namespace
+    args : argparse.Namespace
         Populated with values
     """
     parser = argparse.ArgumentParser(description='Parameters for jp-migrator')
@@ -79,7 +80,7 @@ def _parse_args():
     return args
 
 
-def _read_instructions():
+def _read_instructions() -> dict:
     """Read the database migration instructions. These are contained in the
     migrate.yaml file of the database project.
 
@@ -108,7 +109,7 @@ def _read_instructions():
     return migrate
 
 
-def _get_files(migrate, folder):
+def _get_files(migrate: dict, folder: str) -> list:
     """Retrieve the list of migration files to execute.
 
     Parameters
@@ -121,7 +122,7 @@ def _get_files(migrate, folder):
 
     Returns
     -------
-    files : List
+    files : list
         Migration files to be executed.
     """
     # initialize list of files
@@ -148,7 +149,7 @@ def _get_files(migrate, folder):
     return files
 
 
-def _order_files(migrate, folder, files):
+def _order_files(migrate: dict, folder: str, files: list):
     """Re-order the migration files to ensure those listed by the migration
     instructions are executed first.
 
@@ -178,7 +179,7 @@ def _order_files(migrate, folder, files):
             files.insert(0, files.pop(files.index('/deployment/' + folder + '/' + f)))
 
 
-def _remove_previously_run(server, migrate, files):
+def _remove_previously_run(server: BaseServer, migrate: dict, files: list) -> list:
     """
     Remove migration scripts which have been previously executed.
 
@@ -190,12 +191,12 @@ def _remove_previously_run(server, migrate, files):
     migrate : dict
         Database migration instructions.
 
-    files : List
+    files : list
         List of migration scripts, ordered.
 
     Returns
     -------
-    new_files : List
+    new_files : list
         List of migration scripts which need to be executed.
     """
     remove = []
@@ -212,7 +213,7 @@ def _remove_previously_run(server, migrate, files):
     return new_files
 
 
-def _run_migrations(server, files):
+def _run_migrations(server: BaseServer, files: list):
     """Execute the provided migration scripts.
 
     Parameters
@@ -220,7 +221,7 @@ def _run_migrations(server, files):
     server : BaseServer
         Database server object.
 
-    files : List
+    files : list
         List of migration scripts to be executed.
 
     Returns
@@ -234,12 +235,12 @@ def _run_migrations(server, files):
         database.run_migration(migration)
 
 
-def _get_server(args, migrate):
+def _get_server(args: argparse.Namespace, migrate: dict) -> BaseServer:
     """Connect to the server provided by the migration instructions.
 
     Parameters
     ----------
-    args : namespace
+    args : argparse.Namespace
         argparse namespace containing command-line arguments
 
     migrate : dict

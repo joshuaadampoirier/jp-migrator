@@ -62,7 +62,7 @@ class BaseDatabase:
 
         return params
 
-    def get_params(self):
+    def get_params(self) -> dict:
         """Get parameters for this database.
 
         Parameters
@@ -84,7 +84,7 @@ class BaseDatabase:
 
         return params
 
-    def get_name(self):
+    def get_name(self) -> str:
         """Retrieve the name of the database.
 
         Parameters
@@ -98,7 +98,7 @@ class BaseDatabase:
         """
         return self.dbname
 
-    def check_migration(self, migration):
+    def check_migration(self, migration: str) -> bool:
         """Checks if a given migration script name has already been executed
         against this database.
 
@@ -121,7 +121,7 @@ class BaseDatabase:
         """
         pass
 
-    def run_migration(self, migration):
+    def run_migration(self, migration: str):
         """Run migration against database.
 
         Parameters
@@ -145,7 +145,7 @@ class BaseDatabase:
         # update the _MigrationsRun table
         self.update_migrations_run(migration)
 
-    def update_migrations_run(self, migration):
+    def update_migrations_run(self, migration: str):
         """Insert the given migration into the _MigrationsRun table.
 
         Parameters
