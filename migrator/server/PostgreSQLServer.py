@@ -23,30 +23,29 @@ logging.basicConfig(
 
 
 class PostgreSQLServer(BaseServer):
-    '''
-    PostgreSQL server object.
+    """PostgreSQL server object.
 
     Parameters
     ----------
-    user:       string
-                Database server login name.
+    user : string
+        Database server login name.
 
-    password:   string
-                Database server login password.
+    password : string
+        Database server login password.
 
-    host:       string
-                Host server address.
+    host : string
+        Host server address.
 
-    port:       string
-                Port host server is serving through.
+    port : string
+        Port host server is serving through.
 
-    dbname:     string
-                Name of the database to connect to.
-                Defaults to postgres, the system database.
+    dbname : string
+        Name of the database to connect to.
+        Defaults to postgres, the system database.
 
-    cnxn:       Database connection object
-                Connection to the PostgreSQL database.
-    '''
+    cnxn : Database connection object
+        Connection to the PostgreSQL database.
+    """
     def __init__(
         self,
         user=os.getenv('USER'),
@@ -73,8 +72,7 @@ class PostgreSQLServer(BaseServer):
             logging.warning('Unable to close connection')
 
     def __establish_connection(self):
-        '''
-        Retrieve connection to the PostgreSQL database server.
+        """Retrieve connection to the PostgreSQL database server.
 
         Parameters
         ----------
@@ -82,9 +80,9 @@ class PostgreSQLServer(BaseServer):
 
         Returns
         -------
-        cnxn:       connection object
-                    Open connection to the PostgreSQL database server.
-        '''
+        cnxn : connection object
+            Open connection to the PostgreSQL database server.
+        """
         try:
             logging.info('Connecting to database server')
 

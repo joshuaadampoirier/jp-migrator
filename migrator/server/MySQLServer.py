@@ -20,30 +20,29 @@ logging.basicConfig(
 
 
 class MySQLServer(BaseServer):
-    '''
-    MySQLServer server object.
+    """MySQLServer server object.
 
     Parameters
     ----------
-    server:     string
-                Server address to connect to.
+    server : string
+        Server address to connect to.
 
-    port:       int
-                Port to connect to server through
+    port : int
+        Port to connect to server through
 
-    user:       string
-                Database server login name.
+    user : string
+        Database server login name.
 
-    password:   string
-                Database server login password.
+    password : string
+        Database server login password.
 
-    dbname:     string
-                Name of the database to connect to.
-                Defaults to master, the system database.
+    dbname : string
+        Name of the database to connect to.
+        Defaults to master, the system database.
 
-    cnxn:       Database connection object
-                Connection to the MySQL database.
-    '''
+    cnxn : Database connection object
+        Connection to the MySQL database.
+    """
     def __init__(
         self,
         server,
@@ -71,8 +70,7 @@ class MySQLServer(BaseServer):
             logging.warning('Unable to close connection')
 
     def __establish_connection(self):
-        '''
-        Retrieve connection to the MySQL Server database server.
+        """Retrieve connection to the MySQL Server database server.
 
         Parameters
         ----------
@@ -80,9 +78,9 @@ class MySQLServer(BaseServer):
 
         Returns
         -------
-        cnxn:       connection object
-                    Open connection to the MySQL Server database server.
-        '''
+        cnxn : connection object
+            Open connection to the MySQL Server database server.
+        """
         logging.info('Establishing server connection')
 
         # connect to the server, without a database in mind
