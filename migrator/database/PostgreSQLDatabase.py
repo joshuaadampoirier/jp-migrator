@@ -30,7 +30,7 @@ class PostgreSQLDatabase(BaseDatabase):
     dbname : str
         Name of the database to be created.
     """
-    def __init__(self, cnxn, dbname):
+    def __init__(self, cnxn, dbname: str):
         logging.info('Creating PostgreSQL database object')
         self.cnxn = cnxn
         self.dbname = dbname
@@ -157,7 +157,7 @@ class PostgreSQLDatabase(BaseDatabase):
         f.close()
         cursor.close()
 
-    def check_migration(self, migration):
+    def check_migration(self, migration: str) -> bool:
         """Checks if a given migration script name has already been executed
         against this database.
 
@@ -186,7 +186,7 @@ class PostgreSQLDatabase(BaseDatabase):
 
         return exists
 
-    def update_migrations_run(self, migration):
+    def update_migrations_run(self, migration: str):
         """Insert the given migration into the _MigrationsRun table.
 
         Parameters
