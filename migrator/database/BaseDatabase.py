@@ -16,23 +16,22 @@ logging.basicConfig(
 
 
 class BaseDatabase:
-    '''
-    Base database class for all database types.
-    '''
+    """Base database class for all database types.
+    """
 
     @classmethod
     def _get_param_names(cls):
-        '''
-        Get parameter names for the database
+        """Get parameter names for the database
 
         Parameters
         ----------
         None
+
         Returns
         -------
-        params:     list
-                    List of the class parameters.
-        '''
+        params : list
+            List of the class parameters.
+        """
         # fetch the constructor
         init = getattr(cls.__init__, 'Database Class', cls.__init__)
 
@@ -64,18 +63,18 @@ class BaseDatabase:
         return params
 
     def get_params(self):
-        '''
-        Get parameters for this database.
+        """Get parameters for this database.
 
         Parameters
         ----------
         None
+
         Returns
         -------
-        params:     dictionary
-                    Dictionary of parameters for this database and each of their
-                    set values.
-        '''
+        params : dict
+            Dictionary of parameters for this database and each of their
+            set values.
+        """
         # initialize dictionary
         params = dict()
 
@@ -86,8 +85,7 @@ class BaseDatabase:
         return params
 
     def get_name(self):
-        '''
-        Retrieve the name of the database.
+        """Retrieve the name of the database.
 
         Parameters
         ----------
@@ -95,25 +93,24 @@ class BaseDatabase:
 
         Returns
         -------
-        dbname:     str
-                    Name of the database.
-        '''
+        dbname : str
+            Name of the database.
+        """
         return self.dbname
 
     def check_migration(self, migration):
-        '''
-        Checks if a given migration script name has already been executed
+        """Checks if a given migration script name has already been executed
         against this database.
 
         Parameters
         ----------
-        migration:      str
-                        Path to the migration file being investigated.
+        migration : str
+            Path to the migration file being investigated.
 
         Returns
         -------
-        exists:         bool
-                        True if it has already been executed, otherwise False
+        exists : bool
+            True if it has already been executed, otherwise False
 
         Notes
         -----
@@ -121,22 +118,21 @@ class BaseDatabase:
         table.
 
         All databases should overload this function with their own instance.
-        '''
+        """
         pass
 
     def run_migration(self, migration):
-        '''
-        Run migration against database.
+        """Run migration against database.
 
         Parameters
         ----------
-        migration:      str
-                        Path to the migration script.
+        migration : str
+            Path to the migration script.
 
         Returns
         -------
         None
-        '''
+        """
         # read the migration script
         f = open(migration, 'r')
         sql = f.read()
@@ -150,13 +146,12 @@ class BaseDatabase:
         self.update_migrations_run(migration)
 
     def update_migrations_run(self, migration):
-        '''
-        Insert the given migration into the _MigrationsRun table.
+        """Insert the given migration into the _MigrationsRun table.
 
         Parameters
         ----------
-        migration:      str
-                        Pathname for the migration script.
+        migration : str
+            Pathname for the migration script.
 
         Returns
         -------
@@ -165,5 +160,5 @@ class BaseDatabase:
         Notes
         -----
         All databases should overload this function with their own instance.
-        '''
+        """
         pass

@@ -19,20 +19,19 @@ logging.basicConfig(
 
 
 class SQLite3Server(BaseServer):
-    '''
-    SQLite3 server object.
+    """SQLite3 server object.
 
     SQLite3 databases are actually serverless and have native python
     connections, so they are easy to work with.
 
     Parameters
     ----------
-    dbname:     string
-                Name of the database to connect to.
+    dbname : string
+        Name of the database to connect to.
 
-    cnxn:       database connection object
-                Connection to the SQLite3 database.
-    '''
+    cnxn : database connection object
+        Connection to the SQLite3 database.
+    """
     def __init__(self, dbname):
         logging.info('Creating SQLite3 Server')
         self.dbname = dbname
@@ -44,8 +43,7 @@ class SQLite3Server(BaseServer):
         self.cnxn.close()
 
     def __establish_connection(self):
-        '''
-        Retrieve connection to the SQLite3 database server.
+        """Retrieve connection to the SQLite3 database server.
 
         Parameters
         ----------
@@ -53,9 +51,9 @@ class SQLite3Server(BaseServer):
 
         Returns
         -------
-        cnxn:       connection object
-                    Open connection to the SQLite3 database server.
-        '''
+        cnxn : connection object
+            Open connection to the SQLite3 database server.
+        """
         logging.info('Establishing server connection')
 
         cnxn = sqlite3.connect(
