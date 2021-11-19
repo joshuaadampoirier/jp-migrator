@@ -20,22 +20,20 @@ logging.basicConfig(
 
 
 class SQLite3Database(BaseDatabase):
-    '''
-    SQLite3 database class.
+    """SQLite3 database class.
 
     Parameters
     ----------
-    cnxn:       database server connection
-                Connection to the database.
-    '''
+    cnxn : database server connection
+        Connection to the database.
+    """
     def __init__(self, cnxn):
         logging.info('Creating database object')
         self.cnxn = cnxn
         self.__migrations_run()
 
     def __migrations_run(self):
-        '''
-        If it does not exist, create a table to track the migrations executed
+        """If it does not exist, create a table to track the migrations executed
         against the database.
 
         Parameters
@@ -45,7 +43,7 @@ class SQLite3Database(BaseDatabase):
         Returns
         -------
         None
-        '''
+        """
         logging.info('Creating _migrationsrun table')
 
         # open sql file
@@ -65,19 +63,18 @@ class SQLite3Database(BaseDatabase):
         cursor.close()
 
     def check_migration(self, migration):
-        '''
-        Checks if a given migration script name has already been executed
+        """Checks if a given migration script name has already been executed
         against this database.
 
         Parameters
         ----------
-        migration:      str
-                        Path to the migration file being investigated.
+        migration : str
+            Path to the migration file being investigated.
 
         Returns
         -------
-        exists:         bool
-                        True if it has already been executed, otherwise False
+        exists : bool
+            True if it has already been executed, otherwise False
 
         Notes
         -----
@@ -86,7 +83,7 @@ class SQLite3Database(BaseDatabase):
 
         SQLite3 does not support stored procedures, so we must dynamically build
         the SQL query here.
-        '''
+        """
         # create database cursor
         cursor = self.cnxn.cursor()
 
@@ -109,18 +106,17 @@ class SQLite3Database(BaseDatabase):
         return exists
 
     def update_migrations_run(self, migration):
-        '''
-        Insert the given migration into the _MigrationsRun table.
+        """Insert the given migration into the _MigrationsRun table.
 
         Parameters
         ----------
-        migration:      str
-                        Pathname for the migration script.
+        migration : str
+            Pathname for the migration script.
 
         Returns
         -------
         None
-        '''
+        """
         # create database cursor
         cursor = self.cnxn.cursor()
 

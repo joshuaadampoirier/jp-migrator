@@ -18,17 +18,16 @@ logging.basicConfig(
 
 
 class MySQLDatabase(BaseDatabase):
-    '''
-    MySQL database class.
+    """MySQL database class.
 
     Parameters
     ----------
-    cnxn:       database server connection
-                Connection to the database.
+    cnxn : database server connection
+        Connection to the database.
 
-    dbname:     string
-                Name of the database to be created.
-    '''
+    dbname : str
+        Name of the database to be created.
+    """
     def __init__(self, cnxn, dbname):
         logging.info('Creating MySQL database object')
         self.cnxn = cnxn
@@ -40,8 +39,7 @@ class MySQLDatabase(BaseDatabase):
         self.__insert_migrations_run()
 
     def __create_database(self):
-        '''
-        Create the database if it does not already exist.
+        """Create the database if it does not already exist.
 
         Parameters
         ----------
@@ -50,7 +48,7 @@ class MySQLDatabase(BaseDatabase):
         Returns
         -------
         None
-        '''
+        """
         # build query and open cursor
         logging.info('Creating MySQL database if it does not exist')
         sql = f'CREATE DATABASE IF NOT EXISTS {self.dbname};'
@@ -66,8 +64,7 @@ class MySQLDatabase(BaseDatabase):
         self.cnxn.commit()
 
     def __migrations_run(self):
-        '''
-        If it does not exist, create a table to track the migrations executed
+        """If it does not exist, create a table to track the migrations executed
         against the database.
 
         Parameters
@@ -77,7 +74,7 @@ class MySQLDatabase(BaseDatabase):
         Returns
         -------
         None
-        '''
+        """
         logging.info('Create _MigrationsRun table')
 
         # open sql file
@@ -98,8 +95,7 @@ class MySQLDatabase(BaseDatabase):
         cursor.close()
 
     def __check_migration(self):
-        '''
-        Create the check migration function in the database. This function
+        """Create the check migration function in the database. This function
         (being created in this function) checks to see if a given migration has
         been executed against the database.
 
@@ -110,7 +106,7 @@ class MySQLDatabase(BaseDatabase):
         Returns
         -------
         None
-        '''
+        """
         logging.info('Create _CheckMigration function')
 
         # open sql file
@@ -132,8 +128,7 @@ class MySQLDatabase(BaseDatabase):
         cursor.close()
 
     def __insert_migrations_run(self):
-        '''
-        Create the stored procedure which inserts a given migration into the
+        """Create the stored procedure which inserts a given migration into the
         _MigrationsRun table.
 
         Parameters
@@ -143,7 +138,7 @@ class MySQLDatabase(BaseDatabase):
         Returns
         -------
         None
-        '''
+        """
         logging.info('Create _Insert_MigrationsRun stored procedure')
 
         # open sql file
@@ -165,20 +160,19 @@ class MySQLDatabase(BaseDatabase):
         cursor.close()
 
     def check_migration(self, migration):
-        '''
-        Checks if a given migration script name has already been executed
+        """Checks if a given migration script name has already been executed
         against this database.
 
         Parameters
         ----------
-        migration:      str
-                        Path to the migration file being investigated.
+        migration : str
+            Path to the migration file being investigated.
 
         Returns
         -------
-        exists:         bool
-                        True if it has already been executed, otherwise False
-        '''
+        exists : bool
+            True if it has already been executed, otherwise False
+        """
         # create database cursor
         cursor = self.cnxn.cursor()
         cursor._defer_warnings = True
@@ -196,18 +190,17 @@ class MySQLDatabase(BaseDatabase):
         return exists
 
     def update_migrations_run(self, migration):
-        '''
-        Insert the given migration into the _MigrationsRun table.
+        """Insert the given migration into the _MigrationsRun table.
 
         Parameters
         ----------
-        migration:      str
-                        Pathname for the migration script.
+        migration : str
+            Pathname for the migration script.
 
         Returns
         -------
         None
-        '''
+        """
         # create database cursor
         cursor = self.cnxn.cursor()
         cursor._defer_warnings = True
