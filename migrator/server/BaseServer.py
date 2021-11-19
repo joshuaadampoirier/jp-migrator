@@ -1,5 +1,7 @@
 import inspect
 
+from migrator.database.BaseDatabase import BaseDatabase
+
 
 class BaseServer:
     """Base server class for all database server types.
@@ -48,7 +50,7 @@ class BaseServer:
 
         return params
 
-    def get_params(self):
+    def get_params(self) -> dict:
         """Get parameters for this server.
 
         Parameters
@@ -103,7 +105,7 @@ class BaseServer:
         """
         return self.cnxn
 
-    def get_database(self):
+    def get_database(self) -> BaseDatabase:
         """Retrieve the database object.
 
         Parameters
@@ -112,7 +114,7 @@ class BaseServer:
 
         Returns
         -------
-        database : Database object
+        database : BaseDatabase
             The primary database associated with this server.
         """
         return self.database
