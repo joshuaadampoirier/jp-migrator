@@ -36,7 +36,7 @@ function lint {
 function test {
     clear-cache
     lint
-    python -m unittest discover
+    pytest --cov=migrator tests/
 }
 
 function build {

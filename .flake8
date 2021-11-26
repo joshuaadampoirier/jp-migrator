@@ -3,7 +3,7 @@ exclude =
     .git,
     __pycache__,
     *.sql,
-    **/tests/*
+    tests/*
 max-doc-length = 80
 max-line-length = 120
 statistics = True
